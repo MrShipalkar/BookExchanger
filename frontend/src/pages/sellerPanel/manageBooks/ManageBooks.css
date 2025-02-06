@@ -1,0 +1,182 @@
+/* General Container */
+.manage-books-container {
+    padding: 2rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Form Styling */
+.book-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    max-width: 800px;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.book-form input,
+.book-form select,
+.book-form textarea {
+    width: calc(50% - 1rem); /* Ensures 2 fields per row on larger screens */
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.book-form textarea {
+    width: 100%;
+    height: 80px;
+    resize: vertical;
+}
+
+.book-form label {
+    width: 100%;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+
+.book-form input[type="checkbox"] {
+    margin-right: 0.5rem;
+}
+
+.book-form button {
+    width: 100%;
+    background-color: #E74C3C;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+.book-form button:hover {
+    background-color: #C0392B;
+}
+
+/* Books Table */
+.books-table {
+    width: 100%;
+    max-width: 1000px;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+}
+
+.books-table th,
+.books-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.books-table th {
+    background-color: #E74C3C;
+    color: white;
+    font-weight: bold;
+}
+
+.books-table td {
+    background-color: white;
+}
+
+/* Actions Buttons */
+.books-table button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.books-table .edit {
+    background-color: #3498DB;
+    color: white;
+    margin-right: 5px;
+}
+
+.books-table .delete {
+    background-color: #E74C3C;
+    color: white;
+}
+
+/* Responsive Fixes */
+@media (max-width: 768px) {
+    .manage-books-container {
+        padding: 1rem;
+    }
+
+    .book-form {
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 1rem;
+    }
+
+    .book-form input,
+    .book-form select,
+    .book-form textarea {
+        width: 100%;
+    }
+
+    .books-table {
+        display: block;
+        overflow-x: auto; /* Allow horizontal scrolling */
+        white-space: nowrap;
+    }
+
+    .books-table th,
+    .books-table td {
+        padding: 0.5rem;
+    }
+
+    .books-table button {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
+
+/* Further Responsive Adjustments for Small Devices */
+@media (max-width: 480px) {
+    .book-form {
+        padding: 0.75rem;
+    }
+
+    .book-form input,
+    .book-form select,
+    .book-form textarea {
+        font-size: 0.9rem;
+        padding: 0.5rem;
+    }
+
+    .book-form button {
+        font-size: 0.9rem;
+        padding: 0.6rem;
+    }
+
+    .books-table th,
+    .books-table td {
+        font-size: 0.85rem;
+        padding: 0.4rem;
+    }
+
+    .books-table button {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.6rem;
+    }
+}

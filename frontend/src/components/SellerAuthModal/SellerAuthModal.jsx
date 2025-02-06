@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { sellerSignup, sellerLogin } from "../../services/sellerService"; // Import services
+import { useNavigate } from "react-router-dom";
+import { sellerSignup, sellerLogin } from "../../services/sellerService"; // Import API services
 import "./SellerAuthModal.css";
 
 const SellerAuthModal = ({ isOpen, onClose }) => {
@@ -13,7 +14,9 @@ const SellerAuthModal = ({ isOpen, onClose }) => {
         shopAddress: "",
     });
     const [error, setError] = useState(""); // Error state for API feedback
+    const navigate = useNavigate();
 
+    // Reset form on modal close
     const resetForm = () => {
         setFormData({
             name: "",
@@ -24,7 +27,7 @@ const SellerAuthModal = ({ isOpen, onClose }) => {
             shopAddress: "",
         });
         setError("");
-        setIsLogin(true); // Optionally reset to Login mode
+        setIsLogin(true);
     };
 
     const toggleAuthMode = () => {
@@ -46,20 +49,20 @@ const SellerAuthModal = ({ isOpen, onClose }) => {
 
             // Handle successful response
             alert(response.message);
-            resetForm(); // Reset form after successful submission
-            onClose(); // Close the modal
+            resetForm();
+            onClose();
+            navigate("/seller-dashboard"); // Redirect seller to dashboard after successful login/signup
         } catch (error) {
-            // Handle API errors
             setError(error.response?.data?.message || "Something went wrong");
         }
     };
 
     const handleModalClose = () => {
-        resetForm(); // Reset form fields when modal is closed
+        resetForm(); // Reset fields when modal is closed
         onClose();
     };
 
-    if (!isOpen) return null; // Do not render the modal if not open
+    if (!isOpen) return null; // Prevent rendering when modal is closed
 
     return (
         <div className="modal-overlay">
@@ -157,9 +160,7 @@ const SellerAuthModal = ({ isOpen, onClose }) => {
                     </button>
                 </form>
                 <p onClick={toggleAuthMode} className="toggle-link">
-                    {isLogin
-                        ? "Don't have an account? Signup"
-                        : "Already have an account? Login"}
+                    {isLogin ? "Don't have an account? Signup" : "Already have an account? Login"}
                 </p>
             </div>
         </div>
