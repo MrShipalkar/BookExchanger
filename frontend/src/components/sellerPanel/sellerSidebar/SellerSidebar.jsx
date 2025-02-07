@@ -13,7 +13,7 @@ const SellerSidebar = () => {
 
     const handleLogout = () => {
         if (window.confirm("Are you sure you want to logout?")) {
-            navigate("/login");
+            navigate("/");
         }
     };
 

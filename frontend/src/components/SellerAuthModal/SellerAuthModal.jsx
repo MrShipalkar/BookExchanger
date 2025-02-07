@@ -51,7 +51,7 @@ const SellerAuthModal = ({ isOpen, onClose }) => {
             alert(response.message);
             resetForm();
             onClose();
-            navigate("/seller-dashboard"); // Redirect seller to dashboard after successful login/signup
+            navigate("/seller/dashboard"); // Redirect seller to dashboard after successful login/signup
         } catch (error) {
             setError(error.response?.data?.message || "Something went wrong");
         }
