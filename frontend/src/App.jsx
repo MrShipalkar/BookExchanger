@@ -8,7 +8,7 @@ import ManageBooks from "./pages/sellerPanel/manageBooks/ManageBooks";
 import Orders from "./pages/sellerPanel/orders/Orders";
 import Reports from "./pages/sellerPanel/reports/Reports";
 import Profile from "./pages/sellerPanel/profile/Profile";
-import SellerSidebar from "./components/sellerPanel/sellerSidebar/sellerSidebar";
+import SellerSidebar from "./components/sellerPanel/sellerSidebar/SellerSidebar.jsx";
 
 const App = () => {
     return (
