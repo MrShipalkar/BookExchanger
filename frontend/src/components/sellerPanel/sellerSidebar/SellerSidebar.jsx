@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import "./SellerSidebar.css";
 
 const SellerSidebar = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const location = useLocation(); // Detects route changes
+    const location = useLocation();
+    const navigate = useNavigate();
 
-    // Close sidebar when route changes
     useEffect(() => {
         setIsOpen(false);
     }, [location.pathname]);
+
+    const handleLogout = () => {
+        if (window.confirm("Are you sure you want to logout?")) {
+            navigate("/login");
+        }
+    };
 
     return (
         <>
@@ -23,19 +29,21 @@ const SellerSidebar = () => {
                 </button>
             </div>
 
-            {/* Sidebar for Desktop and Mobile */}
+            {/* Sidebar */}
             <aside className={`seller-sidebar ${isOpen ? "open" : ""}`}>
-                {/* Desktop Logo */}
                 <div className="sidebar-logo">
                     Book<span className="highlight">X</span>changer
                 </div>
                 <ul>
-                    <li><NavLink to="/seller/dashboard" activeclassname="active" onClick={() => setIsOpen(false)}>Dashboard</NavLink></li>
-                    <li><NavLink to="/seller/manage-books" activeclassname="active" onClick={() => setIsOpen(false)}>Manage Books</NavLink></li>
-                    <li><NavLink to="/seller/orders" activeclassname="active" onClick={() => setIsOpen(false)}>Orders</NavLink></li>
-                    <li><NavLink to="/seller/reports" activeclassname="active" onClick={() => setIsOpen(false)}>Reports</NavLink></li>
-                    <li><NavLink to="/seller/profile" activeclassname="active" onClick={() => setIsOpen(false)}>Profile</NavLink></li>
+                    <li><NavLink to="/seller/dashboard" activeclassname="active">Dashboard</NavLink></li>
+                    <li><NavLink to="/seller/manage-books" activeclassname="active">Manage Books</NavLink></li>
+                    <li><NavLink to="/seller/orders" activeclassname="active">Orders</NavLink></li>
+                    <li><NavLink to="/seller/reports" activeclassname="active">Reports</NavLink></li>
+                    <li><NavLink to="/seller/profile" activeclassname="active">Profile</NavLink></li>
                 </ul>
+
+                {/* Logout Button at Bottom */}
+                <button className="logout-btn" onClick={handleLogout}>🚪 Logout</button>
             </aside>
         </>
     );

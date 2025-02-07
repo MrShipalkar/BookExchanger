@@ -174,7 +174,8 @@
     .dashboard-top,
     .dashboard-middle,
     .dashboard-bottom {
-        flex-direction: column;
+        /* flex-direction: column; */
+        gap: 1rem;
     }
 
     .stats-container {

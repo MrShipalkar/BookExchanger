@@ -13,9 +13,10 @@
     gap: 1rem;
     text-align: center;
     z-index: 1000;
+    justify-content: space-between;
 }
 
-/* Sidebar Logo for Desktop */
+/* Sidebar Logo */
 .sidebar-logo {
     font-size: 1.5rem;
     font-weight: bold;
@@ -27,13 +28,6 @@
     color: #E74C3C;
 }
 
-/* Hide Sidebar Logo in Mobile */
-@media (max-width: 768px) {
-    .sidebar-logo {
-        display: none;
-    }
-}
-
 /* Sidebar Links */
 .seller-sidebar ul {
     list-style: none;
@@ -42,6 +36,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    flex-grow: 1;
 }
 
 .seller-sidebar ul li {
@@ -64,13 +59,29 @@
 .seller-sidebar ul li a.active {
     background-color: #E74C3C;
     font-weight: bold;
-    width: auto;
 }
 
 /* Hover effect */
 .seller-sidebar ul li a:hover {
     background: #34495E;
-    width: auto;
+}
+
+/* Logout Button */
+.logout-btn {
+    background-color: #E74C3C;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: auto;
+}
+
+.logout-btn:hover {
+    background-color: #C0392B;
 }
 
 /* Mobile Navbar */
@@ -108,7 +119,7 @@
     margin-right: 30px;
 }
 
-/* Mobile Sidebar Fix */
+/* Mobile Sidebar */
 @media (max-width: 768px) {
     .seller-sidebar {
         position: fixed;
@@ -121,11 +132,15 @@
         transition: transform 0.3s ease-in-out;
         padding: 1rem 0;
         text-align: center;
+        flex-direction: column;
     }
 
     .seller-sidebar.open {
         transform: translateY(0);
         padding: 1.5rem 0;
+    }
+    .seller-sidebar.open .sidebar-logo {
+        display: none;
     }
 
     .seller-sidebar ul {
@@ -147,6 +162,12 @@
         width: 90%;
         display: block;
         text-align: center;
+    }
+
+    /* Logout Button for Mobile */
+    .logout-btn {
+        margin-top: 1rem;
+        width: 90%;
     }
 
     .mobile-navbar {

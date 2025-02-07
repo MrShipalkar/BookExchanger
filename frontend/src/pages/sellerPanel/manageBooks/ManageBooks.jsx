@@ -1,22 +1,41 @@
 import React, { useState, useEffect } from "react";
 import "./ManageBooks.css";
-import { getBooksBySeller, addBook, updateBook, deleteBook } from "../../../services/bookService";
+import { getBooksBySeller } from "../../../services/bookService";
+import { FaEdit, FaTrash } from "react-icons/fa"; // Import icons
 
 const ManageBooks = () => {
-    const [books, setBooks] = useState([]);
-    const [formData, setFormData] = useState({
-        title: "",
-        author: "",
-        price: "",
-        rentPrice: "",
-        isRentable: false,
-        genre: "",
-        description: "",
-        condition: "good",
-        publicationDate: "",
-    });
-    const [isEditing, setIsEditing] = useState(false);
-    const [editBookId, setEditBookId] = useState(null);
+    const [books, setBooks] = useState([
+        {
+            _id: "1",
+            title: "The Great Gatsby",
+            author: "F. Scott Fitzgerald",
+            price: 10,
+            rentPrice: 3,
+            isRentable: true,
+            genre: "Classic",
+            condition: "Good",
+        },
+        {
+            _id: "2",
+            title: "To Kill a Mockingbird",
+            author: "Harper Lee",
+            price: 12,
+            rentPrice: 4,
+            isRentable: false,
+            genre: "Fiction",
+            condition: "New",
+        },
+        {
+            _id: "3",
+            title: "1984",
+            author: "George Orwell",
+            price: 15,
+            rentPrice: 5,
+            isRentable: true,
+            genre: "Dystopian",
+            condition: "Acceptable",
+        },
+    ]);
 
     useEffect(() => {
         fetchBooks();
@@ -31,99 +50,19 @@ const ManageBooks = () => {
         }
     };
 
-    const handleInputChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData({ 
-            ...formData, 
-            [name]: type === "checkbox" ? checked : value 
-        });
+    const handleEdit = (id) => {
+        console.log("Edit book with ID:", id);
+        // Add logic to edit book
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            if (isEditing) {
-                await updateBook(editBookId, formData);
-            } else {
-                await addBook(formData);
-            }
-            fetchBooks();
-            resetForm();
-        } catch (error) {
-            console.error("Error adding/updating book:", error);
-        }
-    };
-
-    const handleEdit = (book) => {
-        setIsEditing(true);
-        setEditBookId(book._id);
-        setFormData({
-            title: book.title,
-            author: book.author,
-            price: book.price,
-            rentPrice: book.rentPrice,
-            isRentable: book.isRentable,
-            genre: book.genre,
-            description: book.description,
-            condition: book.condition,
-            publicationDate: book.publicationDate,
-        });
-    };
-
-    const handleDelete = async (id) => {
-        try {
-            await deleteBook(id);
-            fetchBooks();
-        } catch (error) {
-            console.error("Error deleting book:", error);
-        }
-    };
-
-    const resetForm = () => {
-        setFormData({
-            title: "",
-            author: "",
-            price: "",
-            rentPrice: "",
-            isRentable: false,
-            genre: "",
-            description: "",
-            condition: "good",
-            publicationDate: "",
-        });
-        setIsEditing(false);
-        setEditBookId(null);
+    const handleDelete = (id) => {
+        console.log("Delete book with ID:", id);
+        // Add logic to delete book
     };
 
     return (
         <div className="manage-books-container">
             <h2>Manage Books</h2>
-
-            {/* Add/Edit Book Form */}
-            <form onSubmit={handleSubmit} className="book-form">
-                <input type="text" name="title" placeholder="Title" value={formData.title} onChange={handleInputChange} required />
-                <input type="text" name="author" placeholder="Author" value={formData.author} onChange={handleInputChange} required />
-                <input type="number" name="price" placeholder="Price ($)" value={formData.price} onChange={handleInputChange} required />
-                <input type="number" name="rentPrice" placeholder="Rent Price ($)" value={formData.rentPrice} onChange={handleInputChange} />
-                
-                <label>
-                    <input type="checkbox" name="isRentable" checked={formData.isRentable} onChange={handleInputChange} />
-                    Rentable
-                </label>
-
-                <input type="text" name="genre" placeholder="Genre" value={formData.genre} onChange={handleInputChange} required />
-                <textarea name="description" placeholder="Description" value={formData.description} onChange={handleInputChange} required />
-                
-                <select name="condition" value={formData.condition} onChange={handleInputChange} required>
-                    <option value="new">New</option>
-                    <option value="good">Good</option>
-                    <option value="acceptable">Acceptable</option>
-                </select>
-
-                <input type="date" name="publicationDate" value={formData.publicationDate} onChange={handleInputChange} required />
-
-                <button type="submit">{isEditing ? "Update Book" : "Add Book"}</button>
-            </form>
 
             {/* Books Table */}
             <table className="books-table">
@@ -136,7 +75,7 @@ const ManageBooks = () => {
                         <th>Genre</th>
                         <th>Condition</th>
                         <th>Rentable</th>
-                        <th>Actions</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -149,9 +88,13 @@ const ManageBooks = () => {
                             <td>{book.genre}</td>
                             <td>{book.condition}</td>
                             <td>{book.isRentable ? "Yes" : "No"}</td>
-                            <td>
-                                <button onClick={() => handleEdit(book)}>Edit</button>
-                                <button onClick={() => handleDelete(book._id)}>Delete</button>
+                            <td className="action-buttons">
+                                <button className="edit-btn" onClick={() => handleEdit(book._id)}>
+                                    <FaEdit />
+                                </button>
+                                <button className="delete-btn" onClick={() => handleDelete(book._id)}>
+                                    <FaTrash />
+                                </button>
                             </td>
                         </tr>
                     ))}
