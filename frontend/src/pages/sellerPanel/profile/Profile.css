@@ -1,24 +1,21 @@
 /* Profile Container */
 .seller-profile {
-    max-width: 600px;
+    max-width: 900px;
     margin: auto;
     padding: 2rem;
-    /* background: white; */
     border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    align-items: center;
+    color: black;
 }
 
-/* Profile Header */
+/* Profile Header - Centered */
 .profile-header {
     display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
     flex-direction: column;
+    align-items: center;
     text-align: center;
+    margin-bottom: 2rem;
 }
 
 .profile-pic {
@@ -26,44 +23,78 @@
     height: 100px;
     border-radius: 50%;
     border: 3px solid #E74C3C;
+    object-fit: cover;
+    margin-bottom: 10px;
 }
 
-/* Profile Sections */
-.profile-section {
-    width: 100%;
-    margin-bottom: 1.5rem;
+/* Profile Sections Layout */
+.profile-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.profile-card {
     background: #f8f9fa;
-    color: #000;
-    padding: 1.2rem;
+    padding: 1.5rem;
     border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    align-items: center;
 }
 
-/* Section Titles */
-.profile-section h3 {
-    font-size: 1.2rem;
-    color: #2C3E50;
-    margin-bottom: 1rem;
-    text-align: center;
+/* Profile Grid for Input Fields */
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
 }
 
-/* Form Inputs */
-.profile-section input,
-.profile-section select {
+.profile-grid div {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+/* ✅ Ensure Input Fields & Buttons Have the Same Size */
+.profile-card input,
+.profile-card select {
     width: 100%;
-    padding: 0.75rem;
+    padding: 12px;
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 1rem;
-    margin-bottom: 0.75rem;
-    text-align: center;
+    background: #ccc;
+    color: black;
+    box-sizing: border-box; /* ✅ Prevents resizing issues */
+    background: #FFF;
+
 }
 
-/* Make input fields read-only by default */
-.profile-section input[disabled] {
-    background: #ddd;
+/* ✅ Ensure Buttons Match Input Fields */
+.profile-card button {
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    box-sizing: border-box; 
+    padding: 12px;
+    border-radius: 5px;
+
+}
+
+/* Disable input field styling */
+.profile-card select[disabled]  {
+    background: #a4a3a3;
+    cursor: not-allowed;
+}
+
+.profile-card input[disabled]  {
+    background: #a4a3a3;
     cursor: not-allowed;
 }
 
@@ -71,36 +102,22 @@
 .btn-primary {
     background-color: #E74C3C;
     color: white;
-    padding: 0.75rem;
     border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 100%;
-    text-align: center;
-    font-weight: bold;
+    margin-top: 15px;
 }
 
 .btn-secondary {
     background-color: #3498DB;
     color: white;
-    padding: 0.75rem;
     border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 0.5rem;
-    font-weight: bold;
+    margin-top: 15px;
 }
 
 .btn-danger {
     background-color: #C0392B;
     color: white;
-    padding: 0.75rem;
     border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 100%;
-    font-weight: bold;
+    margin-top: 15px;
 }
 
 /* Danger Section */
@@ -108,22 +125,14 @@
     background: #ffe5e5;
 }
 
-/* Preferences Section */
-.profile-section label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
-    width: 100%;
-    justify-content: center;
-}
-
-/* 🔹 Responsive Design */
+/* Responsive Fix */
 @media (max-width: 768px) {
     .seller-profile {
-        width: 85%;
-        padding: 1.5rem;
+        margin-top: 100px;
+    }
+    
+    .profile-container {
+        grid-template-columns: 1fr;
     }
 
     .profile-header {
@@ -141,13 +150,10 @@
         padding: 1rem;
     }
 
-    .profile-section input,
-    .profile-section select {
+    .profile-card input,
+    .profile-card select,
+    .profile-card button {
         font-size: 0.9rem;
-        padding: 0.6rem;
-    }
-
-    .btn-primary, .btn-secondary, .btn-danger {
-        font-size: 0.9rem;
+        padding: 10px;
     }
 }

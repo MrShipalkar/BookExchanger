@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Reports.css";
 import { Line, Pie } from "react-chartjs-2";
+import { getSalesReport, getBestSellingBooks, getOrderSummary } from "../../../services/reportService";
+
+// ✅ Import & Register Chart.js Components
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -13,50 +16,65 @@ import {
     Legend,
 } from "chart.js";
 
-// Register chart.js components
 ChartJS.register(
     CategoryScale,
     LinearScale,
     LineElement,
     PointElement,
+    ArcElement, // Required for Pie Chart
     Title,
     Tooltip,
-    Legend,
-    ArcElement
+    Legend
 );
 
 const Reports = () => {
-    const [dateRange, setDateRange] = useState("monthly");
+    const [salesData, setSalesData] = useState(null);
+    const [bestSellingBooks, setBestSellingBooks] = useState([]);
+    const [orderSummary, setOrderSummary] = useState({ completed: 0, pending: 0, cancelled: 0 });
+    const [dateRange, setDateRange] = useState("monthly"); // Default filter
+    const [errorMessage, setErrorMessage] = useState(""); // 🟢 Handle error messages
 
-    // Dummy Data for Charts
-    const salesData = {
-        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-        datasets: [
-            {
-                label: "Sales Revenue ($)",
-                data: [4000, 7000, 5000, 9000, 12000, 15000],
-                backgroundColor: "rgba(231, 76, 60, 0.5)",
-                borderColor: "#E74C3C",
-                borderWidth: 1,
-            },
-        ],
-    };
+    useEffect(() => {
+        async function fetchReports() {
+            try {
+                setErrorMessage(""); // Reset errors before fetching
 
-    const orderSummaryData = {
-        labels: ["Completed", "Pending", "Cancelled"],
-        datasets: [
-            {
-                data: [45, 10, 5],
-                backgroundColor: ["#2ECC71", "#F1C40F", "#E74C3C"],
-            },
-        ],
-    };
+                // 🟢 Fetch Sales Report
+                const salesResponse = await getSalesReport(dateRange);
 
-    const bestSellingBooks = [
-        { title: "Atomic Habits", sales: 120, revenue: "$2,400" },
-        { title: "The Psychology of Money", sales: 90, revenue: "$1,800" },
-        { title: "Rich Dad Poor Dad", sales: 80, revenue: "$1,600" },
-    ];
+                if (!salesResponse || !salesResponse.salesData || salesResponse.salesData.length === 0) {
+                    throw new Error("No sales data found."); // ✅ Handle empty data
+                }
+
+                setSalesData({
+                    labels: salesResponse.labels || ["Jan", "Feb", "Mar", "Apr", "May", "Jun"], // API labels or dummy
+                    datasets: [
+                        {
+                            label: "Sales Revenue ($)",
+                            data: salesResponse.salesData || [0, 0, 0, 0, 0, 0], // Show zero if no data
+                            backgroundColor: "rgba(231, 76, 60, 0.5)",
+                            borderColor: "#E74C3C",
+                            borderWidth: 2,
+                        },
+                    ],
+                });
+
+                // 🟢 Fetch Best Selling Books
+                const bestSellersResponse = await getBestSellingBooks();
+                setBestSellingBooks(bestSellersResponse || []);
+
+                // 🟢 Fetch Order Summary Data
+                const orderSummaryResponse = await getOrderSummary(dateRange);
+                setOrderSummary(orderSummaryResponse || { completed: 0, pending: 0, cancelled: 0 });
+
+            } catch (error) {
+                setErrorMessage(error.message || "Error fetching reports.");
+                console.error("Error fetching reports:", error);
+            }
+        }
+
+        fetchReports();
+    }, [dateRange]); // Fetch data when date range changes
 
     return (
         <div className="reports-container">
@@ -73,20 +91,40 @@ const Reports = () => {
                 </select>
             </div>
 
-            {/* Charts Row - Two Charts Stay Side by Side */}
+            {/* 🟢 Error Message Display */}
+            {errorMessage && <p className="error-message">⚠️ {errorMessage}</p>}
+
+            {/* 🟢 Charts Row (Sales & Order Summary side by side) */}
             <div className="charts-row">
+                {/* Sales Performance Chart */}
                 <div className="chart-container">
                     <h3>📈 Sales Performance</h3>
-                    <Line data={salesData} />
+                    {salesData ? <Line key={JSON.stringify(salesData)} data={salesData} /> : <p>No sales data available.</p>}
                 </div>
 
+                {/* Order Summary Pie Chart */}
                 <div className="chart-container">
                     <h3>📦 Order Summary</h3>
-                    <Pie data={orderSummaryData} />
+                    <Pie
+                        key={Date.now()} // 🔄 Fix Chart.js re-rendering issue
+                        data={{
+                            labels: ["Completed", "Pending", "Cancelled"],
+                            datasets: [
+                                {
+                                    data: [
+                                        orderSummary.completed || 0,
+                                        orderSummary.pending || 0,
+                                        orderSummary.cancelled || 0,
+                                    ],
+                                    backgroundColor: ["#2ECC71", "#F1C40F", "#E74C3C"],
+                                },
+                            ],
+                        }}
+                    />
                 </div>
             </div>
 
-            {/* Best-Selling Books */}
+            {/* 🟢 Best-Selling Books Table */}
             <div className="best-sellers">
                 <h3>🏆 Best-Selling Books</h3>
                 <table>
@@ -98,13 +136,19 @@ const Reports = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {bestSellingBooks.map((book, index) => (
-                            <tr key={index}>
-                                <td>{book.title}</td>
-                                <td>{book.sales}</td>
-                                <td>{book.revenue}</td>
+                        {bestSellingBooks.length > 0 ? (
+                            bestSellingBooks.map((book, index) => (
+                                <tr key={index}>
+                                    <td>{book.title}</td>
+                                    <td>{book.sales}</td>
+                                    <td>${book.revenue}</td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="3">No best-selling books available.</td>
                             </tr>
-                        ))}
+                        )}
                     </tbody>
                 </table>
             </div>

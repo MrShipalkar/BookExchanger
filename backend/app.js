@@ -6,11 +6,14 @@ const axios = require("axios");
 const connectDB = require("./config/db");
 
 // Import routes
-const sellerRoutes = require('./routes/sellerRoutes');
-const buyerRoutes = require('./routes/buyerRoutes');
-const adminRoutes = require('./routes/adminRoutes');
-const bookRoutes = require('./routes/bookRoutes');
-const rentalRoutes = require('./routes/rentalRoutes');
+const sellerRoutes = require("./routes/sellerRoutes");
+const buyerRoutes = require("./routes/buyerRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const bookRoutes = require("./routes/bookRoutes");
+const rentalRoutes = require("./routes/rentalRoutes");
+const orderRoutes = require("./routes/orderRoutes");  // ✅ NEW
+const reportRoutes = require("./routes/reportRoutes"); // ✅ NEW
+const dashboardRoutes = require("./routes/dashboardRoutes");// ✅ NEW
 
 dotenv.config();
 connectDB();
@@ -48,11 +51,14 @@ app.post("/api/predict-price", async (req, res) => {
 });
 
 // Use other routes
-app.use('/api/seller', sellerRoutes);
-app.use('/api/buyer', buyerRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/books', bookRoutes);
-app.use('/api/rentals', rentalRoutes);
+app.use("/api/seller", sellerRoutes);
+app.use("/api/buyer", buyerRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/books", bookRoutes);
+app.use("/api/rentals", rentalRoutes);
+app.use("/api/orders", orderRoutes);  // ✅ NEW
+app.use("/api/seller/reports", reportRoutes); // ✅ NEW
+app.use("/api/dashboard", dashboardRoutes);// ✅ NEW
 
 // Root route
 app.get("/", (req, res) => {

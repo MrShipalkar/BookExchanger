@@ -1,51 +1,31 @@
 import React, { useState, useEffect } from "react";
 import "./Orders.css";
-import { FaTruck, FaEye } from "react-icons/fa"; // Import icons
+import { FaTruck } from "react-icons/fa";
+import { getSellerOrders, updateOrderStatus } from "../../../services/orderService";
 
 const Orders = () => {
-    const [orders, setOrders] = useState([
-        {
-            _id: "1",
-            buyer: "John Doe",
-            totalAmount: 50,
-            status: "Pending",
-            date: "2024-02-07",
-        },
-        {
-            _id: "2",
-            buyer: "Jane Smith",
-            totalAmount: 30,
-            status: "Shipped",
-            date: "2024-02-06",
-        },
-        {
-            _id: "3",
-            buyer: "Alice Brown",
-            totalAmount: 75,
-            status: "Delivered",
-            date: "2024-02-05",
-        },
-    ]);
+    const [orders, setOrders] = useState([]);
 
     useEffect(() => {
         fetchOrders();
     }, []);
 
     const fetchOrders = async () => {
-        // Fetch orders from API (Replace with real API call later)
-        console.log("Fetching orders...");
+        try {
+            const response = await getSellerOrders();
+            setOrders(response);
+        } catch (error) {
+            console.error("Error fetching orders:", error);
+        }
     };
 
-    const markAsShipped = (id) => {
-        console.log("Marking order as shipped:", id);
-        setOrders(orders.map(order =>
-            order._id === id ? { ...order, status: "Shipped" } : order
-        ));
-    };
-
-    const viewDetails = (id) => {
-        console.log("Viewing details for order:", id);
-        // Add logic to show order details
+    const markAsShipped = async (id) => {
+        try {
+            await updateOrderStatus(id, "Shipped");
+            setOrders(orders.map((order) => (order._id === id ? { ...order, status: "Shipped" } : order)));
+        } catch (error) {
+            console.error("Error updating order:", error);
+        }
     };
 
     return (
@@ -65,25 +45,28 @@ const Orders = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {orders.map((order) => (
-                        <tr key={order._id}>
-                            <td>{order._id}</td>
-                            <td>{order.buyer}</td>
-                            <td>${order.totalAmount}</td>
-                            <td className={`status ${order.status.toLowerCase()}`}>{order.status}</td>
-                            <td>{order.date}</td>
-                            <td className="action-buttons">
-                                {order.status === "Pending" && (
-                                    <button className="ship-btn" onClick={() => markAsShipped(order._id)}>
-                                        <FaTruck /> Ship
-                                    </button>
-                                )}
-                                <button className="view-btn" onClick={() => viewDetails(order._id)}>
-                                    <FaEye /> View
-                                </button>
-                            </td>
+                    {orders.length > 0 ? (
+                        orders.map((order) => (
+                            <tr key={order._id}>
+                                <td>{order._id}</td>
+                                <td>{order.buyer ? order.buyer.name : "Unknown Buyer"}</td>
+                                <td>₹{order.totalPrice}</td>
+                                <td className={`status ${order.status.toLowerCase()}`}>{order.status}</td>
+                                <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                                <td className="action-buttons">
+                                    {order.status === "Pending" && (
+                                        <button className="ship-btn" onClick={() => markAsShipped(order._id)}>
+                                            <FaTruck /> Ship
+                                        </button>
+                                    )}
+                                </td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="6">No orders found.</td>
                         </tr>
-                    ))}
+                    )}
                 </tbody>
             </table>
         </div>

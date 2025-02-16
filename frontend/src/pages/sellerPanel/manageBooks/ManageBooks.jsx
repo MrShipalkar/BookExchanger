@@ -1,41 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "./ManageBooks.css";
-import { getBooksBySeller } from "../../../services/bookService";
-import { FaEdit, FaTrash } from "react-icons/fa"; // Import icons
+import { getBooksBySeller, deleteBook } from "../../../services/bookService";
+import { FaTrash, FaEdit } from "react-icons/fa";
+import UpdateBookModal from "../../../components/sellerPanel/updateBookModal/UpdateBookModal"; // Import UpdateBookModal
 
 const ManageBooks = () => {
-    const [books, setBooks] = useState([
-        {
-            _id: "1",
-            title: "The Great Gatsby",
-            author: "F. Scott Fitzgerald",
-            price: 10,
-            rentPrice: 3,
-            isRentable: true,
-            genre: "Classic",
-            condition: "Good",
-        },
-        {
-            _id: "2",
-            title: "To Kill a Mockingbird",
-            author: "Harper Lee",
-            price: 12,
-            rentPrice: 4,
-            isRentable: false,
-            genre: "Fiction",
-            condition: "New",
-        },
-        {
-            _id: "3",
-            title: "1984",
-            author: "George Orwell",
-            price: 15,
-            rentPrice: 5,
-            isRentable: true,
-            genre: "Dystopian",
-            condition: "Acceptable",
-        },
-    ]);
+    const [books, setBooks] = useState([]);
+    const [editBook, setEditBook] = useState(null); // Holds book to be edited
 
     useEffect(() => {
         fetchBooks();
@@ -44,20 +15,25 @@ const ManageBooks = () => {
     const fetchBooks = async () => {
         try {
             const response = await getBooksBySeller();
-            setBooks(response.data);
+            setBooks(response);
         } catch (error) {
             console.error("Error fetching books:", error);
         }
     };
 
-    const handleEdit = (id) => {
-        console.log("Edit book with ID:", id);
-        // Add logic to edit book
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this book?")) return;
+
+        try {
+            await deleteBook(id);
+            setBooks(books.filter((book) => book._id !== id));
+        } catch (error) {
+            console.error("Error deleting book:", error);
+        }
     };
 
-    const handleDelete = (id) => {
-        console.log("Delete book with ID:", id);
-        // Add logic to delete book
+    const handleEditClick = (book) => {
+        setEditBook(book); // Open update modal with selected book
     };
 
     return (
@@ -79,27 +55,42 @@ const ManageBooks = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {books.map((book) => (
-                        <tr key={book._id}>
-                            <td>{book.title}</td>
-                            <td>{book.author}</td>
-                            <td>${book.price}</td>
-                            <td>${book.rentPrice}</td>
-                            <td>{book.genre}</td>
-                            <td>{book.condition}</td>
-                            <td>{book.isRentable ? "Yes" : "No"}</td>
-                            <td className="action-buttons">
-                                <button className="edit-btn" onClick={() => handleEdit(book._id)}>
-                                    <FaEdit />
-                                </button>
-                                <button className="delete-btn" onClick={() => handleDelete(book._id)}>
-                                    <FaTrash />
-                                </button>
-                            </td>
+                    {books.length > 0 ? (
+                        books.map((book) => (
+                            <tr key={book._id}>
+                                <td>{book.title}</td>
+                                <td>{book.author}</td>
+                                <td>₹{book.price}</td>
+                                <td>₹{book.rentPrice}</td>
+                                <td>{book.genre}</td>
+                                <td>{book.condition}</td>
+                                <td>{book.isRentable ? "Yes" : "No"}</td>
+                                <td className="action-buttons">
+                                    <button className="edit-btn" onClick={() => handleEditClick(book)}>
+                                        <FaEdit />
+                                    </button>
+                                    <button className="delete-btn" onClick={() => handleDelete(book._id)}>
+                                        <FaTrash />
+                                    </button>
+                                </td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="8">No books found.</td>
                         </tr>
-                    ))}
+                    )}
                 </tbody>
             </table>
+
+            {/* Update Book Modal */}
+            {editBook && (
+                <UpdateBookModal
+                    book={editBook}
+                    onClose={() => setEditBook(null)}
+                    onUpdateSuccess={fetchBooks} // Refresh book list after update
+                />
+            )}
         </div>
     );
 };

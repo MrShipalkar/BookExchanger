@@ -1,9 +1,12 @@
 import api from "./apiConfig";
 
-// Get books listed by the seller
+// ✅ Fetch books listed by the seller with token manually added
 export const getBooksBySeller = async () => {
     try {
-        const response = await api.get("/api/seller/books"); // Ensure backend supports this route
+        const token = localStorage.getItem("token"); // ✅ Get token manually
+        const response = await api.get("/books/seller/books", {
+            headers: { "auth-token": token }, // ✅ Attach token manually
+        });
         return response.data;
     } catch (error) {
         console.error("Error fetching seller books:", error);
@@ -11,10 +14,13 @@ export const getBooksBySeller = async () => {
     }
 };
 
-// Add a new book
+// ✅ Add a new book with token manually added
 export const addBook = async (bookData) => {
     try {
-        const response = await api.post("/api/seller/books", bookData);
+        const token = localStorage.getItem("token"); // ✅ Get token manually
+        const response = await api.post("/books/seller/books", bookData, {
+            headers: { "auth-token": token }, // ✅ Attach token manually
+        });
         return response.data;
     } catch (error) {
         console.error("Error adding book:", error);
@@ -22,10 +28,13 @@ export const addBook = async (bookData) => {
     }
 };
 
-// Update an existing book
+// ✅ Update an existing book with token manually added
 export const updateBook = async (bookId, bookData) => {
     try {
-        const response = await api.put(`/api/seller/books/${bookId}`, bookData);
+        const token = localStorage.getItem("token"); // ✅ Get token manually
+        const response = await api.put(`/books/seller/books/${bookId}`, bookData, {
+            headers: { "auth-token": token }, // ✅ Attach token manually
+        });
         return response.data;
     } catch (error) {
         console.error("Error updating book:", error);
@@ -33,10 +42,13 @@ export const updateBook = async (bookId, bookData) => {
     }
 };
 
-// Delete a book
+// ✅ Delete a book with token manually added
 export const deleteBook = async (bookId) => {
     try {
-        const response = await api.delete(`/api/seller/books/${bookId}`);
+        const token = localStorage.getItem("token"); // ✅ Get token manually
+        const response = await api.delete(`/books/seller/books/${bookId}`, {
+            headers: { "auth-token": token }, // ✅ Attach token manually
+        });
         return response.data;
     } catch (error) {
         console.error("Error deleting book:", error);
