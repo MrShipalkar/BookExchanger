@@ -167,8 +167,9 @@
 
     /* Logout Button for Mobile */
     .logout-btn {
-        margin-top: 1rem;
+        /* margin-top: 1rem; */
         width: 90%;
+        margin: 20px;
     }
 
     .mobile-navbar {

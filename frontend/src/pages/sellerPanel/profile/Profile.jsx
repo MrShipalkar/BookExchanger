@@ -68,7 +68,7 @@ const Profile = () => {
         <div className="seller-profile">
             {/* Profile Header */}
             <div className="profile-header">
-                <img src={profile.profilePic || "https://via.placeholder.com/100"} alt="Profile" className="profile-pic" />
+                <img src={profile.profilePic || "https://i.etsystatic.com/22530935/r/il/e12dc2/2212316290/il_600x600.2212316290_dso3.jpg"} alt="Profile" className="profile-pic" />
                 <div>
                     <h2>{profile.name}</h2>
                     <p>Joined on: {new Date(profile.createdAt).toLocaleDateString()}</p>
