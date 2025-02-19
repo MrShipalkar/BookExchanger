@@ -17,16 +17,22 @@ export const getBooksBySeller = async () => {
 // ✅ Add a new book with token manually added
 export const addBook = async (bookData) => {
     try {
-        const token = localStorage.getItem("token"); // ✅ Get token manually
+        const token = localStorage.getItem("token");
+
         const response = await api.post("/books/seller/books", bookData, {
-            headers: { "auth-token": token }, // ✅ Attach token manually
+            headers: {
+                "auth-token": token, 
+                "Content-Type": "multipart/form-data", // ✅ Correctly set form encoding
+            },
         });
+
         return response.data;
     } catch (error) {
-        console.error("Error adding book:", error);
+        console.error("❌ Error adding book:", error.response?.data || error.message);
         throw new Error(error.response?.data?.message || "Failed to add book.");
     }
 };
+
 
 // ✅ Update an existing book with token manually added
 export const updateBook = async (bookId, bookData) => {

@@ -1,4 +1,8 @@
 const Book = require('../models/Book');
+const cloudinary = require("../config/cloudinaryConfig");
+const uploadImagesToCloudinary = require("../utils/cloudinaryUpload"); // Import function
+
+
 
 // ✅ Fetch books listed by the seller
 const getBooksBySeller = async (req, res) => {
@@ -14,37 +18,86 @@ const getBooksBySeller = async (req, res) => {
 };
 
 // ✅ Add a new book
+
 const addBook = async (req, res) => {
     try {
-        const { title, author, genre, description, price, rentPrice, isRentable, condition, publicationDate } = req.body;
+        console.log("📥 Received Request Body:", req.body);
+        console.log("📸 Received Files:", req.files);
 
-        if (!title || !author || !price) {
-            return res.status(400).json({ message: 'Title, Author, and Price are required' });
+        if (!req.body.title || !req.body.author || !req.body.price) {
+            return res.status(400).json({ message: "❌ Title, Author, and Price are required" });
         }
 
-        const images = req.files ? req.files.map(file => file.path) : [];
+        if (!req.files || req.files.length < 2) {
+            return res.status(400).json({ message: "❌ Please upload at least 2 images." });
+        }
 
+        // ✅ Debug file sizes before uploading
+        req.files.forEach((file, index) => {
+            console.log(`📸 File ${index + 1}:`, file.originalname, file.mimetype, file.size, "bytes");
+        });
+
+        // ✅ Upload Images to Cloudinary
+        const images = await uploadImagesToCloudinary(req.files);
+        console.log("✅ Uploaded Image URLs:", images);
+
+        // ✅ Save Book Data
         const book = new Book({
-            title,
-            author,
-            genre,
-            description,
-            price,
-            rentPrice: isRentable ? rentPrice : undefined,
-            isRentable: !!isRentable,
-            condition,
-            publicationDate,
-            images,
-            seller: req.user.id // Set seller ID from authenticated user
+            title: req.body.title,
+            author: req.body.author,
+            genre: req.body.genre,
+            description: req.body.description,
+            price: req.body.price,
+            rentPrice: req.body.rentPrice || null,
+            isRentable: req.body.isRentable === "true",
+            condition: req.body.condition,
+            publicationDate: req.body.publicationDate,
+            images, // Save Cloudinary URLs
+            original_price: req.body.original_price || null,
+            pages: req.body.pages || null,
+            publication_year: req.body.publication_year || null,
+            predictedPrice: req.body.predictedPrice || null,
+            acceptPredictedPrice: req.body.acceptPredictedPrice || null,
+            seller: req.user.id,
         });
 
         await book.save();
-        res.status(201).json({ message: 'Book added successfully', book });
+        res.status(201).json({ message: "✅ Book added successfully", book });
+
     } catch (error) {
-        console.error('Error adding book:', error);
-        res.status(500).json({ message: 'Server error', error });
+        console.error("❌ Server Error:", error.message);
+        res.status(500).json({ message: "❌ Internal Server Error", error: error.message });
     }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ✅ Update a book
 const updateBook = async (req, res) => {

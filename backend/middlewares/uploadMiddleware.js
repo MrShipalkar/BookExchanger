@@ -1,6 +1,18 @@
-const multer = require('multer');
-const { storage } = require('../config/cloudinaryConfig'); // Cloudinary storage configuration
+const multer = require("multer");
+const path = require("path");
 
-const upload = multer({ storage });
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "uploads/"); // ✅ Save to `uploads/` before uploading
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname)); // ✅ Rename files
+    },
+});
+
+const upload = multer({
+    storage,
+    limits: { fileSize: 2 * 1024 * 1024 }, // ✅ Limit file size to 2MB
+});
 
 module.exports = upload;

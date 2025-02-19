@@ -1,5 +1,12 @@
-const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
+require("dotenv").config(); // Ensure .env is loaded
+
+const cloudinary = require("cloudinary").v2;
+
+console.log("✅ ENV Loaded:", {
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY ? "✅ Loaded" : "❌ MISSING",
+    api_secret: process.env.CLOUDINARY_API_SECRET ? "✅ Loaded" : "❌ MISSING",
+});
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -7,12 +14,4 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
-    cloudinary,
-    params: {
-        folder: 'book-images', // Folder in Cloudinary
-        allowed_formats: ['jpeg', 'png', 'jpg'],
-    },
-});
-
-module.exports = { cloudinary, storage };
+module.exports = { cloudinary };
