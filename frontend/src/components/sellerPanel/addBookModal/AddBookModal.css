@@ -125,7 +125,7 @@ body.modal-open {
 .checkbox-group {
     display: flex;
     gap: 20px;
-    width: 100%;
+    width: 30%;
     text-align: left;
 }
 
@@ -133,7 +133,8 @@ body.modal-open {
     display: flex;
     align-items: center;
     width: 30%;
-    gap: 5px;
+    height: 30px;
+    gap: 5px; 
     margin: 0;
     white-space: nowrap;
 }

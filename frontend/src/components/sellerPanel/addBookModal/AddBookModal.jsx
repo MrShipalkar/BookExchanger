@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./AddBookModal.css";
-import { addBook } from "../../../services/bookService";
+import { addBook, predictBookPrice } from "../../../services/bookService";
 
 const AddBookModal = ({ onClose }) => {
     const [step, setStep] = useState(1);
@@ -53,15 +53,39 @@ const AddBookModal = ({ onClose }) => {
         setFormData({ ...formData, images: newImages });
     };
 
-    // ✅ Predict Price for Old Books
-    const handlePredictPrice = () => {
-        if (!formData.original_price) {
-            alert("Enter the original price first.");
-            return;
+   
+
+    const handlePredictPrice = async () => {
+        try {
+            // ✅ Prepare book details for prediction
+            const bookDetails = {
+                condition: formData.condition,
+                publication_year: parseInt(formData.publication_year, 10),
+                original_price: parseFloat(formData.original_price),
+                pages: parseInt(formData.pages, 10),
+            };
+    
+            console.log("📤 Sending to Backend for Prediction:", bookDetails);
+    
+            // ✅ Call Backend API
+            const predictedPrice = await predictBookPrice(bookDetails);
+    
+            console.log("📥 Predicted Price from API:", predictedPrice); // ✅ Debugging API Response
+    
+            // ✅ Ensure state updates properly
+            setFormData((prevData) => ({
+                ...prevData,
+                predictedPrice: predictedPrice.toFixed(2), // Ensure it's formatted correctly
+                acceptPredictedPrice: "yes",
+            }));
+    
+        } catch (error) {
+            console.error("❌ Prediction Error:", error);
+            alert("❌ Failed to predict price.");
         }
-        const predictedPrice = (parseFloat(formData.original_price) * 0.6).toFixed(2);
-        setFormData({ ...formData, predictedPrice, acceptPredictedPrice: "yes" });
     };
+    
+
 
     // ✅ Move to Step 3 for Old Book
     const handleOldBookNext = (e) => {
@@ -69,39 +93,39 @@ const AddBookModal = ({ onClose }) => {
         setStep(3);
     };
 
-   // ✅ Submit Book to Backend
-   const handleSubmit = async (e) => {
-    e.preventDefault();
+    // ✅ Submit Book to Backend
+    const handleSubmit = async (e) => {
+        e.preventDefault();
 
-    if (formData.images.length < 2) {
-        alert("Please upload at least 2 images.");
-        return;
-    }
-
-    try {
-        const bookData = new FormData();
-
-        Object.keys(formData).forEach((key) => {
-            if (key === "images") {
-                formData.images.forEach((file) => bookData.append("images", file)); 
-            } else {
-                bookData.append(key, formData[key]);
-            }
-        });
-
-        console.log("📤 Sending FormData:");
-        for (let pair of bookData.entries()) {
-            console.log(pair[0], pair[1]);
+        if (formData.images.length < 2) {
+            alert("Please upload at least 2 images.");
+            return;
         }
 
-        await addBook(bookData); 
-        alert("✅ Book Added Successfully!");
-        onClose();
-    } catch (error) {
-        console.error("❌ Error adding book:", error);
-        alert("❌ Failed to add book.");
-    }
-};
+        try {
+            const bookData = new FormData();
+
+            Object.keys(formData).forEach((key) => {
+                if (key === "images") {
+                    formData.images.forEach((file) => bookData.append("images", file));
+                } else {
+                    bookData.append(key, formData[key]);
+                }
+            });
+
+            console.log("📤 Sending FormData:");
+            for (let pair of bookData.entries()) {
+                console.log(pair[0], pair[1]);
+            }
+
+            await addBook(bookData);
+            alert("✅ Book Added Successfully!");
+            onClose();
+        } catch (error) {
+            console.error("❌ Error adding book:", error);
+            alert("❌ Failed to add book.");
+        }
+    };
 
     return (
         <div className="modal">
@@ -115,8 +139,8 @@ const AddBookModal = ({ onClose }) => {
                         <button className="btn-close" onClick={onClose}>Cancel</button>
                     </>
                 )}
-{/* ✅ Step 2: New Book (Single Page) */}
-{step === 2 && bookType === "new" && (
+                {/* ✅ Step 2: New Book (Single Page) */}
+                {step === 2 && bookType === "new" && (
                     <form onSubmit={handleSubmit}>
                         <h3>Add New Book</h3>
 
@@ -154,7 +178,7 @@ const AddBookModal = ({ onClose }) => {
                             ))}
                         </div>
 
-                        <label>
+                        <label className="checkbox-label">
                             <input type="checkbox" name="isRentable" checked={formData.isRentable} onChange={handleChange} />
                             Is Rentable?
                         </label>
@@ -230,10 +254,16 @@ const AddBookModal = ({ onClose }) => {
                         <button type="button" className="btn-secondary" onClick={handlePredictPrice}>Predict Price</button>
 
                         <label>Predicted Price (₹)</label>
-                        <input type="number" name="predictedPrice" value={formData.predictedPrice} disabled />
+<input 
+    type="text" 
+    name="predictedPrice" 
+    value={formData.predictedPrice || ""} // ✅ Ensure it shows correctly
+    readOnly 
+/>
+
 
                         <label>
-                            <input type="checkbox" name="acceptPredictedPrice" checked={formData.acceptPredictedPrice === "yes"} onChange={() => setFormData({...formData, acceptPredictedPrice: formData.acceptPredictedPrice === "yes" ? "no" : "yes"})} />
+                            <input type="checkbox" name="acceptPredictedPrice" checked={formData.acceptPredictedPrice === "yes"} onChange={() => setFormData({ ...formData, acceptPredictedPrice: formData.acceptPredictedPrice === "yes" ? "no" : "yes" })} />
                             Accept Predicted Price?
                         </label>
                         {formData.acceptPredictedPrice === "no" && (
@@ -265,7 +295,7 @@ const AddBookModal = ({ onClose }) => {
                         <label>Description</label>
                         <textarea name="description" value={formData.description} onChange={handleChange}></textarea>
 
-                        <label>
+                        <label className="checkbox-label">
                             <input type="checkbox" name="isRentable" checked={formData.isRentable} onChange={handleChange} />
                             Is Rentable?
                         </label>

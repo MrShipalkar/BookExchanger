@@ -61,3 +61,19 @@ export const deleteBook = async (bookId) => {
         throw new Error(error.response?.data?.message || "Failed to delete book.");
     }
 };
+
+
+
+// ✅ Predict Price for Old Books
+export const predictBookPrice = async (bookDetails) => {
+    try {
+        const response = await api.post("/predict-price", bookDetails);
+        
+        console.log("📥 Full API Response:", response.data); // ✅ Debugging API Response
+
+        return response.data.predicted_price; // Ensure it matches Flask API key
+    } catch (error) {
+        console.error("❌ Error predicting price:", error.response?.data || error.message);
+        throw new Error(error.response?.data?.error || "Failed to predict price.");
+    }
+};
