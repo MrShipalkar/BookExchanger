@@ -53,7 +53,7 @@ const AddBookModal = ({ onClose }) => {
         setFormData({ ...formData, images: newImages });
     };
 
-   
+
 
     const handlePredictPrice = async () => {
         try {
@@ -64,27 +64,27 @@ const AddBookModal = ({ onClose }) => {
                 original_price: parseFloat(formData.original_price),
                 pages: parseInt(formData.pages, 10),
             };
-    
+
             console.log("📤 Sending to Backend for Prediction:", bookDetails);
-    
+
             // ✅ Call Backend API
             const predictedPrice = await predictBookPrice(bookDetails);
-    
+
             console.log("📥 Predicted Price from API:", predictedPrice); // ✅ Debugging API Response
-    
+
             // ✅ Ensure state updates properly
             setFormData((prevData) => ({
                 ...prevData,
                 predictedPrice: predictedPrice.toFixed(2), // Ensure it's formatted correctly
                 acceptPredictedPrice: "yes",
             }));
-    
+
         } catch (error) {
             console.error("❌ Prediction Error:", error);
             alert("❌ Failed to predict price.");
         }
     };
-    
+
 
 
     // ✅ Move to Step 3 for Old Book
@@ -94,38 +94,54 @@ const AddBookModal = ({ onClose }) => {
     };
 
     // ✅ Submit Book to Backend
-    const handleSubmit = async (e) => {
-        e.preventDefault();
 
-        if (formData.images.length < 2) {
-            alert("Please upload at least 2 images.");
-            return;
-        }
+   const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        try {
-            const bookData = new FormData();
+    // 🚨 Ensure required fields are not empty
+    if (!formData.title.trim() || !formData.author.trim() || !formData.original_price.trim()) {
+        alert("❌ Title, Author, and Original Price are required.");
+        return;
+    }
 
-            Object.keys(formData).forEach((key) => {
-                if (key === "images") {
-                    formData.images.forEach((file) => bookData.append("images", file));
-                } else {
-                    bookData.append(key, formData[key]);
-                }
-            });
+    if (formData.images.length < 2) {
+        alert("❌ Please upload at least 2 images.");
+        return;
+    }
 
-            console.log("📤 Sending FormData:");
-            for (let pair of bookData.entries()) {
-                console.log(pair[0], pair[1]);
+    try {
+        const bookData = new FormData();
+
+        // ✅ Append book type (important for backend)
+        bookData.append("bookType", bookType);
+
+        // ✅ Ensure original_price is stored as a number
+        bookData.append("original_price", parseFloat(formData.original_price) || 0);
+
+        // ✅ Append all form data properly
+        Object.keys(formData).forEach((key) => {
+            if (key === "images") {
+                formData.images.forEach((file) => bookData.append("images", file));
+            } else if (formData[key] !== undefined && formData[key] !== null) {
+                bookData.append(key, formData[key]);
             }
+        });
 
-            await addBook(bookData);
-            alert("✅ Book Added Successfully!");
-            onClose();
-        } catch (error) {
-            console.error("❌ Error adding book:", error);
-            alert("❌ Failed to add book.");
+        // 🛠 Debug: Log FormData before sending
+        console.log("📤 Sending FormData:");
+        for (let pair of bookData.entries()) {
+            console.log(pair[0], pair[1]);
         }
-    };
+
+        // ✅ Send request to backend
+        await addBook(bookData);
+        alert("✅ Book Added Successfully!");
+        onClose();
+    } catch (error) {
+        console.error("❌ Error adding book:", error.response?.data || error.message);
+        alert(error.response?.data?.message || "❌ Failed to add book.");
+    }
+};
 
     return (
         <div className="modal">
@@ -159,7 +175,7 @@ const AddBookModal = ({ onClose }) => {
                             </div>
                             <div>
                                 <label>Price (₹)</label>
-                                <input type="number" name="price" value={formData.price} onChange={handleChange} required />
+                                <input type="number" name="original_price" value={formData.original_price} onChange={handleChange} required />
                             </div>
                         </div>
 
@@ -254,12 +270,12 @@ const AddBookModal = ({ onClose }) => {
                         <button type="button" className="btn-secondary" onClick={handlePredictPrice}>Predict Price</button>
 
                         <label>Predicted Price (₹)</label>
-<input 
-    type="text" 
-    name="predictedPrice" 
-    value={formData.predictedPrice || ""} // ✅ Ensure it shows correctly
-    readOnly 
-/>
+                        <input
+                            type="text"
+                            name="predictedPrice"
+                            value={formData.predictedPrice || ""} // ✅ Ensure it shows correctly
+                            readOnly
+                        />
 
 
                         <label>

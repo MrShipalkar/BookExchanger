@@ -24,15 +24,24 @@ const addBook = async (req, res) => {
         console.log("📥 Received Request Body:", req.body);
         console.log("📸 Received Files:", req.files);
 
-        if (!req.body.title || !req.body.author || !req.body.price) {
-            return res.status(400).json({ message: "❌ Title, Author, and Price are required" });
+        // ✅ Extract Book Type (New or Old)
+        const { bookType } = req.body;
+        const validBookTypes = ["new", "old"];
+
+        if (!bookType || !validBookTypes.includes(bookType)) {
+            return res.status(400).json({ message: "❌ Invalid or missing book type. Must be 'new' or 'old'." });
+        }
+
+        // ✅ Validate Common Fields
+        if (!req.body.title || !req.body.author || !req.body.original_price) {
+            return res.status(400).json({ message: "❌ Title, Author, and Original Price are required." });
         }
 
         if (!req.files || req.files.length < 2) {
             return res.status(400).json({ message: "❌ Please upload at least 2 images." });
         }
 
-        // ✅ Debug file sizes before uploading
+        // ✅ Debugging File Sizes Before Upload
         req.files.forEach((file, index) => {
             console.log(`📸 File ${index + 1}:`, file.originalname, file.mimetype, file.size, "bytes");
         });
@@ -41,27 +50,52 @@ const addBook = async (req, res) => {
         const images = await uploadImagesToCloudinary(req.files);
         console.log("✅ Uploaded Image URLs:", images);
 
-        // ✅ Save Book Data
-        const book = new Book({
+        // ✅ Create Base Book Object
+        const bookData = {
+            bookType, // Store whether it's "new" or "old"
             title: req.body.title,
             author: req.body.author,
             genre: req.body.genre,
             description: req.body.description,
-            price: req.body.price,
-            rentPrice: req.body.rentPrice || null,
             isRentable: req.body.isRentable === "true",
             condition: req.body.condition,
             publicationDate: req.body.publicationDate,
             images, // Save Cloudinary URLs
-            original_price: req.body.original_price || null,
-            pages: req.body.pages || null,
-            publication_year: req.body.publication_year || null,
-            predictedPrice: req.body.predictedPrice || null,
-            acceptPredictedPrice: req.body.acceptPredictedPrice || null,
-            seller: req.user.id,
-        });
+            seller: req.user.id, // Seller ID from authentication
+        };
 
+        // ✅ Handle New Books
+        if (bookType === "new") {
+            bookData.original_price = req.body.original_price;
+            bookData.rentPrice = req.body.rentPrice || null;
+        }
+
+        // ✅ Handle Old Books
+        if (bookType === "old") {
+            // ✅ Validate Required Fields for Old Books
+            if (!req.body.publication_year || !req.body.pages) {
+                return res.status(400).json({ message: "❌ Publication Year and Pages are required for old books." });
+            }
+
+            // ✅ Assign Old Book Fields
+            bookData.original_price = req.body.original_price;
+            bookData.publication_year = req.body.publication_year;
+            bookData.pages = req.body.pages;
+            bookData.predictedPrice = req.body.predictedPrice || null;
+            bookData.acceptPredictedPrice = req.body.acceptPredictedPrice || "no";
+            bookData.customPrice = req.body.customPrice || null;
+
+            // ✅ Set Price Based on Prediction or Custom Price
+            bookData.original_price = bookData.acceptPredictedPrice === "yes" ? bookData.predictedPrice : bookData.customPrice;
+            if (!bookData.original_price) {
+                return res.status(400).json({ message: "❌ Original Price is required (either predicted or custom)." });
+            }
+        }
+
+        // ✅ Save Book to Database
+        const book = new Book(bookData);
         await book.save();
+
         res.status(201).json({ message: "✅ Book added successfully", book });
 
     } catch (error) {
@@ -69,6 +103,7 @@ const addBook = async (req, res) => {
         res.status(500).json({ message: "❌ Internal Server Error", error: error.message });
     }
 };
+
 
 
 
