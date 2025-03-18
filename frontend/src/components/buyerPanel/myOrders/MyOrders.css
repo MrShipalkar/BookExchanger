@@ -1,0 +1,16 @@
+.my-orders {
+    padding: 20px;
+}
+
+.orders-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.order-card {
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    width: 250px;
+}

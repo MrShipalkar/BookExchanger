@@ -41,4 +41,42 @@ const buyerLogin = async (req, res) => {
     }
 };
 
-module.exports = { buyerSignup, buyerLogin };
+// ✅ Fetch Buyer Profile
+const getBuyerProfile = async (req, res) => {
+    try {
+        const buyer = await Buyer.findById(req.user.id).select("-password"); // Exclude password
+        if (!buyer) {
+            return res.status(404).json({ message: "Buyer not found" });
+        }
+        res.status(200).json(buyer);
+    } catch (error) {
+        console.error("Error fetching buyer profile:", error);
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+};
+
+// ✅ Update Buyer Profile
+const updateBuyerProfile = async (req, res) => {
+    try {
+        const { name, email, address } = req.body;
+
+        let buyer = await Buyer.findById(req.user.id);
+        if (!buyer) {
+            return res.status(404).json({ message: "Buyer not found" });
+        }
+
+        // Update only provided fields
+        if (name) buyer.name = name;
+        if (email) buyer.email = email;
+        if (address) buyer.address = address;
+
+        await buyer.save();
+
+        res.status(200).json({ message: "Profile updated successfully", buyer });
+    } catch (error) {
+        console.error("Error updating buyer profile:", error);
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+};
+
+module.exports = { buyerSignup, buyerLogin, getBuyerProfile, updateBuyerProfile };

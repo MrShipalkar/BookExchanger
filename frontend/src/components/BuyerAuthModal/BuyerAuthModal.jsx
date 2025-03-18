@@ -1,16 +1,18 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ Import useNavigate for redirection
 import { buyerSignup, buyerLogin } from "../../services/buyerService"; // Import services
 import "./BuyerAuthModal.css";
 
 const BuyerAuthModal = ({ isOpen, onClose }) => {
-    const [isLogin, setIsLogin] = useState(true); // Toggle between login and signup
+    const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({
         name: "",
         email: "",
         password: "",
         address: "",
     });
-    const [error, setError] = useState(""); // Error state for API feedback
+    const [error, setError] = useState("");
+    const navigate = useNavigate(); // ✅ Initialize navigate for redirection
 
     const resetForm = () => {
         setFormData({
@@ -20,12 +22,12 @@ const BuyerAuthModal = ({ isOpen, onClose }) => {
             address: "",
         });
         setError("");
-        setIsLogin(true); // Optionally reset to Login mode
+        setIsLogin(true);
     };
 
     const toggleAuthMode = () => {
         setIsLogin(!isLogin);
-        setError(""); // Reset error when switching modes
+        setError("");
     };
 
     const handleInputChange = (e) => {
@@ -40,29 +42,31 @@ const BuyerAuthModal = ({ isOpen, onClose }) => {
                 ? await buyerLogin({ email: formData.email, password: formData.password })
                 : await buyerSignup(formData);
 
-            // Handle successful response
+            // ✅ Handle successful response
             alert(response.message);
-            resetForm(); // Reset form after successful submission
+            resetForm();
             onClose(); // Close the modal
+
+            // ✅ Redirect to Buyer Dashboard after successful login
+            if (isLogin) {
+                navigate("/buyer/dashboard");
+            }
         } catch (error) {
-            // Handle API errors
             setError(error.response?.data?.message || "Something went wrong");
         }
     };
 
     const handleModalClose = () => {
-        resetForm(); // Reset form fields when modal is closed
+        resetForm();
         onClose();
     };
 
-    if (!isOpen) return null; // Do not render the modal if not open
+    if (!isOpen) return null;
 
     return (
         <div className="modal-overlay">
             <div className="modal-container">
-                <button className="close-button" onClick={handleModalClose}>
-                    ✖
-                </button>
+                <button className="close-button" onClick={handleModalClose}>✖</button>
                 <h2>{isLogin ? "Login as Buyer" : "Signup as Buyer"}</h2>
                 <form onSubmit={handleSubmit}>
                     {!isLogin && (

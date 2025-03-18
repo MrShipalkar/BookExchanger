@@ -37,4 +37,22 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
-module.exports = { getOrdersBySeller, updateOrderStatus };
+//Buyer
+
+const getBuyerOrders = async (req, res) => {
+    try {
+        const buyerId = req.user.id; // Get Buyer ID from authenticated user
+        const orders = await Order.find({ buyer: buyerId }).populate("book", "title price images");
+
+        if (!orders.length) {
+            return res.status(404).json({ message: "No orders found." });
+        }
+
+        res.status(200).json(orders);
+    } catch (error) {
+        console.error("Error fetching buyer orders:", error);
+        res.status(500).json({ message: "Server error. Please try again later." });
+    }
+};
+
+module.exports = { getOrdersBySeller, updateOrderStatus, getBuyerOrders};

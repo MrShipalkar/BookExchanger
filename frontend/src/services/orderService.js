@@ -27,3 +27,17 @@ export const updateOrderStatus = async (orderId, status) => {
         throw new Error(error.response?.data?.message || "Failed to update order status.");
     }
 };
+
+// 📌Get Orders for the Buyer
+export const getBuyerOrders = async () => {
+    try {
+        const token = localStorage.getItem("token"); // Get auth token
+        const response = await api.get("/orders/buyer/orders", {
+            headers: { "auth-token": token }, // Attach token manually
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching buyer orders:", error);
+        throw new Error(error.response?.data?.message || "Failed to fetch orders.");
+    }
+};

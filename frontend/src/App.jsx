@@ -9,7 +9,11 @@ import Orders from "./pages/sellerPanel/orders/Orders";
 import Reports from "./pages/sellerPanel/reports/Reports";
 import Profile from "./pages/sellerPanel/profile/Profile";
 import SellerSidebar from "./components/sellerPanel/sellerSidebar/SellerSidebar";
-
+import BuyerDashboard from "./pages/buyerDashboard/BuyerDashboard";
+import ProductPage from "./pages/productPage/ProductPage";
+import BuyerNavbar from "./components/buyerPanel/buyerNavbar/BuyerNavbar"; // ✅ Import Buyer Navbar
+import MyOrders from "./components/buyerPanel/myOrders/MyOrders";
+import BuyerProfile from "./components/buyerPanel/profile/Profile";
 
 const App = () => {
     return (
@@ -19,6 +23,24 @@ const App = () => {
                 <Route path="/" element={<Homepage />} />
                 <Route path="/books" element={<Books />} />
                 <Route path="/about" element={<AboutUs />} />
+
+                {/* ✅ Fix: Update Buyer Routes to use "/buyer/*" */}
+                <Route
+                    path="/buyer/*"
+                    element={
+                        <div className="buyer-panel-container">
+                            <BuyerNavbar /> {/* ✅ Buyer Navbar applied to all buyer pages */}
+                            <div className="buyer-content">
+                                <Routes>
+                                    <Route path="Dashboard" element={<BuyerDashboard />} /> {/* ✅ Corrected Path */}
+                                    <Route path="book/:bookId" element={<ProductPage />} />
+                                    <Route path="orders" element={<MyOrders />} />
+                                    <Route path="profile" element={<BuyerProfile />} />
+                                </Routes>
+                            </div>
+                        </div>
+                    }
+                />
 
                 {/* Seller Panel with Sidebar */}
                 <Route

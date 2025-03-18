@@ -5,7 +5,9 @@ const {
     getBooksBySeller,
     addBook,
     updateBook,
-    deleteBook
+    deleteBook,
+    getAllBooks,
+    getBookById
 } = require("../controllers/bookController");
 
 const router = express.Router();
@@ -15,5 +17,7 @@ router.get("/seller/books", verifyToken, getBooksBySeller);
 router.post("/seller/books",verifyToken, upload.array("images", 5), addBook);
 router.put("/seller/books/:id", verifyToken, updateBook);
 router.delete("/seller/books/:id", verifyToken, deleteBook);
+router.get("/buyer/books", getAllBooks);
+router.get("/:id", getBookById);
 
 module.exports = router;

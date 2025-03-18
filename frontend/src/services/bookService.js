@@ -77,3 +77,24 @@ export const predictBookPrice = async (bookDetails) => {
         throw new Error(error.response?.data?.error || "Failed to predict price.");
     }
 };
+
+export const getAllBooks = async () => {
+    try {
+        const response = await api.get("/books/buyer/books");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching books:", error);
+        throw new Error(error.response?.data?.message || "Failed to fetch books.");
+    }
+};
+
+export const getBookById = async (bookId) => {
+    try {
+        if (!bookId) throw new Error("Book ID is required"); // Prevent undefined bookId
+        const response = await api.get(`/books/${bookId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching book:", error);
+        throw new Error(error.response?.data?.message || "Failed to fetch book.");
+    }
+};
