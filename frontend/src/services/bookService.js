@@ -34,19 +34,32 @@ export const addBook = async (bookData) => {
 };
 
 
-// ✅ Update an existing book with token manually added
+// ✅ Update an existing book with images and token manually added
 export const updateBook = async (bookId, bookData) => {
     try {
-        const token = localStorage.getItem("token"); // ✅ Get token manually
+        const token = localStorage.getItem("token");
+
+        console.log("📤 Sending to Backend (updateBook):");
+        for (let pair of bookData.entries()) {
+            console.log(`${pair[0]}: ${pair[1]}`);
+        }
+
         const response = await api.put(`/books/seller/books/${bookId}`, bookData, {
-            headers: { "auth-token": token }, // ✅ Attach token manually
+            headers: {
+                "auth-token": token,
+                "Content-Type": "multipart/form-data", // ✅ Ensure correct encoding
+            },
         });
+
         return response.data;
     } catch (error) {
-        console.error("Error updating book:", error);
-        throw new Error(error.response?.data?.message || "Failed to update book.");
+        console.error("❌ Error updating book:", error.response?.data || error.message);
+        throw new Error(error.response?.data?.message || "❌ Failed to update book.");
     }
 };
+
+
+
 
 // ✅ Delete a book with token manually added
 export const deleteBook = async (bookId) => {

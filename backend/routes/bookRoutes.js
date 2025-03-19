@@ -17,7 +17,7 @@ const router = express.Router();
 // ✅ Correct backend route (Matches frontend call)
 router.get("/seller/books", verifyToken, getBooksBySeller);
 router.post("/seller/books",verifyToken, upload.array("images", 5), addBook);
-router.put("/seller/books/:id", verifyToken, updateBook);
+router.put("/seller/books/:id", verifyToken, upload.array("images", 5), updateBook);
 router.delete("/seller/books/:id", verifyToken, deleteBook);
 router.get("/buyer/books", getAllBooks);
 router.get("/branches", getBranches); // ✅ This should come first

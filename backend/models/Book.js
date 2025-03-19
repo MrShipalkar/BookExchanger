@@ -25,7 +25,7 @@ const bookSchema = new mongoose.Schema(
       required: true,
   },
     description: { type: String },
-    // price: { type: Number, required: true },
+    original_price: { type: Number, required: true },
     rentPrice: { type: Number },
     isRentable: { type: Boolean, default: false },
     condition: {

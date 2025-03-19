@@ -128,39 +128,105 @@ const addBook = async (req, res) => {
 };
 
 
-
-
-// ✅ Update a book
 const updateBook = async (req, res) => {
     try {
         const { id } = req.params;
+        console.log("📥 Received Update Request for Book ID:", id);
+        console.log("📥 Received Body:", JSON.stringify(req.body, null, 2));
+        console.log("📸 Received Files:", req.files.length ? req.files.map(f => f.originalname) : "No new images");
+
         const book = await Book.findById(id);
+        if (!book) {
+            return res.status(404).json({ message: "❌ Book not found." });
+        }
 
-        if (!book) return res.status(404).json({ message: 'Book not found' });
-
+        // ✅ Ensure seller is authorized
         if (book.seller.toString() !== req.user.id) {
-            return res.status(403).json({ message: 'Unauthorized to update this book' });
+            return res.status(403).json({ message: "❌ Unauthorized to update this book." });
         }
 
-        const allowedUpdates = ['title', 'author', 'branch', 'description', 'price', 'rentPrice', 'isRentable', 'condition', 'publicationDate'];
+        // ✅ Validate required fields
+        if (!req.body.title || !req.body.author || !req.body.original_price) {
+            return res.status(400).json({ message: "❌ Title, Author, and Original Price are required." });
+        }
 
-        Object.keys(req.body).forEach(key => {
-            if (allowedUpdates.includes(key)) {
-                book[key] = req.body[key];
-            }
-        });
-
+        // ✅ Handle Image Uploads
+        let images = book.images; // Keep existing images if no new images are uploaded
         if (req.files && req.files.length > 0) {
-            book.images = req.files.map(file => file.path);
+            try {
+                console.log("📤 Uploading new images...");
+                images = await uploadImagesToCloudinary(req.files); // ✅ Upload buffers to Cloudinary
+                console.log("✅ Updated Images:", images);
+            } catch (error) {
+                console.error("❌ Failed to upload images to Cloudinary:", error.message);
+                return res.status(500).json({ message: "❌ Failed to upload images to Cloudinary" });
+            }
+        } else {
+            console.log("📸 No new images uploaded. Keeping existing images.");
         }
 
-        await book.save();
-        res.status(200).json({ message: '✅ Book updated successfully', book });
+        // ✅ Convert and Update Fields Properly
+        book.title = req.body.title.trim();
+        book.author = req.body.author.trim();
+        book.branch = req.body.branch.trim();
+
+        // ✅ Update description only if provided
+        if (req.body.description !== undefined) {
+            book.description = req.body.description.trim();
+        }
+
+        book.isRentable = req.body.isRentable === "true" || req.body.isRentable === true; // ✅ Convert to Boolean
+        book.condition = req.body.condition || book.condition;
+
+        // ✅ Convert `original_price` and `rentPrice` to numbers
+        book.original_price = req.body.original_price ? Number(req.body.original_price) : book.original_price;
+        if (book.isRentable && req.body.rentPrice !== undefined) {
+            book.rentPrice = Number(req.body.rentPrice);
+        } else if (!book.isRentable) {
+            book.rentPrice = null; // ✅ Remove rent price if not rentable
+        }
+
+        // ✅ Convert `publicationDate` to the correct format (yyyy-MM-dd)
+        if (req.body.publicationDate) {
+            try {
+                const parsedDate = new Date(req.body.publicationDate);
+                if (!isNaN(parsedDate.getTime())) {
+                    book.publicationDate = parsedDate; // Store Date object (MongoDB handles it)
+                } else {
+                    throw new Error("Invalid date format");
+                }
+            } catch (error) {
+                console.error("❌ Invalid publication date format:", req.body.publicationDate);
+                return res.status(400).json({ message: "❌ Invalid publication date format. Use yyyy-MM-dd." });
+            }
+        }
+        
+
+        book.images = images; // ✅ Assign updated images
+
+        // ✅ Save Updated Book (Force updates)
+        await book.save({ validateModifiedOnly: true });
+
+        res.status(200).json({ message: "✅ Book updated successfully", book });
+
     } catch (error) {
-        console.error('❌ Error updating book:', error);
-        res.status(500).json({ message: '❌ Server error', error });
+        console.error("❌ Server Error:", error.message);
+        res.status(500).json({ message: "❌ Internal Server Error", error: error.message });
     }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // ✅ Delete a book
