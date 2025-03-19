@@ -1,6 +1,8 @@
 const Book = require('../models/Book');
 const cloudinary = require("../config/cloudinaryConfig");
 const uploadImagesToCloudinary = require("../utils/cloudinaryUpload"); // Import function
+const mongoose = require("mongoose");
+
 
 
 
@@ -18,18 +20,47 @@ const getBooksBySeller = async (req, res) => {
 };
 
 // ✅ Add a new book
-
+// ✅ Add a new book
 const addBook = async (req, res) => {
     try {
         console.log("📥 Received Request Body:", req.body);
         console.log("📸 Received Files:", req.files);
 
-        // ✅ Extract Book Type (New or Old)
+        // ✅ Extract Book Type and Branch
         const { bookType } = req.body;
-        const validBookTypes = ["new", "old"];
+        let branch = req.body.branch;
 
+        // ✅ Ensure `branch` is a string (sometimes it's an array)
+        if (Array.isArray(branch)) {
+            branch = branch[0]; // Take the first value if it's an array
+        }
+
+        // ✅ Check for empty or invalid values
+        if (!branch || typeof branch !== "string") {
+            return res.status(400).json({ message: "❌ Invalid or missing branch selection." });
+        }
+
+        branch = branch.trim(); // ✅ Now we can safely use `.trim()`
+
+        const validBookTypes = ["new", "old"];
+        const validBranches = [
+            "Computer Science",
+            "Mechanical",
+            "Civil",
+            "Electrical",
+            "Electronics",
+            "IT",
+            "Other",
+        ]; // ✅ Ensure it matches schema
+
+        // ✅ Validate Book Type
         if (!bookType || !validBookTypes.includes(bookType)) {
             return res.status(400).json({ message: "❌ Invalid or missing book type. Must be 'new' or 'old'." });
+        }
+
+        // ✅ Validate Branch
+        if (!validBranches.includes(branch)) {
+            return res.status(400).json({ message: `❌ Invalid branch selection: ${branch}` });
         }
 
         // ✅ Validate Common Fields
@@ -41,27 +72,22 @@ const addBook = async (req, res) => {
             return res.status(400).json({ message: "❌ Please upload at least 2 images." });
         }
 
-        // ✅ Debugging File Sizes Before Upload
-        req.files.forEach((file, index) => {
-            console.log(`📸 File ${index + 1}:`, file.originalname, file.mimetype, file.size, "bytes");
-        });
-
         // ✅ Upload Images to Cloudinary
         const images = await uploadImagesToCloudinary(req.files);
         console.log("✅ Uploaded Image URLs:", images);
 
-        // ✅ Create Base Book Object
+        // ✅ Create Book Object
         const bookData = {
-            bookType, // Store whether it's "new" or "old"
-            title: req.body.title,
-            author: req.body.author,
-            genre: req.body.genre,
-            description: req.body.description,
+            bookType,
+            title: req.body.title.trim(),
+            author: req.body.author.trim(),
+            branch, // ✅ Now `branch` is always a clean string
+            description: req.body.description.trim(),
             isRentable: req.body.isRentable === "true",
             condition: req.body.condition,
             publicationDate: req.body.publicationDate,
-            images, // Save Cloudinary URLs
-            seller: req.user.id, // Seller ID from authentication
+            images,
+            seller: req.user.id,
         };
 
         // ✅ Handle New Books
@@ -72,12 +98,10 @@ const addBook = async (req, res) => {
 
         // ✅ Handle Old Books
         if (bookType === "old") {
-            // ✅ Validate Required Fields for Old Books
             if (!req.body.publication_year || !req.body.pages) {
                 return res.status(400).json({ message: "❌ Publication Year and Pages are required for old books." });
             }
 
-            // ✅ Assign Old Book Fields
             bookData.original_price = req.body.original_price;
             bookData.publication_year = req.body.publication_year;
             bookData.pages = req.body.pages;
@@ -85,7 +109,6 @@ const addBook = async (req, res) => {
             bookData.acceptPredictedPrice = req.body.acceptPredictedPrice || "no";
             bookData.customPrice = req.body.customPrice || null;
 
-            // ✅ Set Price Based on Prediction or Custom Price
             bookData.original_price = bookData.acceptPredictedPrice === "yes" ? bookData.predictedPrice : bookData.customPrice;
             if (!bookData.original_price) {
                 return res.status(400).json({ message: "❌ Original Price is required (either predicted or custom)." });
@@ -105,6 +128,8 @@ const addBook = async (req, res) => {
 };
 
 
+
+
 // ✅ Update a book
 const updateBook = async (req, res) => {
     try {
@@ -117,7 +142,7 @@ const updateBook = async (req, res) => {
             return res.status(403).json({ message: 'Unauthorized to update this book' });
         }
 
-        const allowedUpdates = ['title', 'author', 'genre', 'description', 'price', 'rentPrice', 'isRentable', 'condition', 'publicationDate'];
+        const allowedUpdates = ['title', 'author', 'branch', 'description', 'price', 'rentPrice', 'isRentable', 'condition', 'publicationDate'];
 
         Object.keys(req.body).forEach(key => {
             if (allowedUpdates.includes(key)) {
@@ -130,12 +155,13 @@ const updateBook = async (req, res) => {
         }
 
         await book.save();
-        res.status(200).json({ message: 'Book updated successfully', book });
+        res.status(200).json({ message: '✅ Book updated successfully', book });
     } catch (error) {
-        console.error('Error updating book:', error);
-        res.status(500).json({ message: 'Server error', error });
+        console.error('❌ Error updating book:', error);
+        res.status(500).json({ message: '❌ Server error', error });
     }
 };
+
 
 // ✅ Delete a book
 const deleteBook = async (req, res) => {
@@ -185,5 +211,48 @@ const getBookById = async (req, res) => {
     }
 };
 
+// ✅ Get Similar Books Based on Genre
+const getSimilarBooks = async (req, res) => {
+    try {
+        const { id } = req.params;
 
-module.exports = { getBooksBySeller, addBook, updateBook, deleteBook, getAllBooks, getBookById };
+        console.log("📥 Received Book ID for Similar Books:", id); // Debugging
+
+        // Find the current book by ID
+        const currentBook = await Book.findById(id);
+        if (!currentBook) {
+            console.log("❌ Book not found for ID:",id);
+            return res.status(404).json({ message: "Book not found" });
+        }
+
+        console.log("✅ Found Book:", currentBook);
+
+        // Fetch books with the same branch but exclude the current book
+        const similarBooks = await Book.find({
+            branch: currentBook.branch, // Match books from the same branch
+            _id: { $ne: id }, // Exclude the current book
+        }).limit(10);
+
+        console.log("✅ Found Similar Books:", similarBooks);
+
+        res.status(200).json(similarBooks);
+    } catch (error) {
+        console.error("❌ Error fetching similar books:", error);
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
+
+
+
+
+const getBranches = async (req, res) => {
+    try {
+        const branches = Book.schema.path("branch").enumValues; // ✅ Fetch ENUM values directly from schema
+        res.status(200).json({ branches });
+    } catch (error) {
+        console.error("❌ Error fetching branches:", error);
+        res.status(500).json({ message: "Internal Server Error", error });
+    }
+};
+
+module.exports = { getBooksBySeller, addBook, updateBook, deleteBook, getAllBooks, getBookById, getSimilarBooks, getBranches };

@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./AddBookModal.css";
-import { addBook, predictBookPrice } from "../../../services/bookService";
+import { addBook, predictBookPrice, getBranches } from "../../../services/bookService";
 
 const AddBookModal = ({ onClose }) => {
     const [step, setStep] = useState(1);
+    const [branches, setBranches] = useState([]);
     const [bookType, setBookType] = useState("");
     const [formData, setFormData] = useState({
         title: "",
         author: "",
-        genre: "",
+        branch: "", // ✅ Default branch selection 
         description: "",
         price: "",
         rentPrice: "",
@@ -23,6 +24,17 @@ const AddBookModal = ({ onClose }) => {
         acceptPredictedPrice: "yes",
         customPrice: "",
     });
+
+
+    // ✅ Fetch Branches When Component Mounts
+    useEffect(() => {
+        const fetchBranches = async () => {
+            const data = await getBranches();
+            setBranches(data);
+        };
+
+        fetchBranches();
+    }, []);
 
     // ✅ Handle Input Change
     const handleChange = (e) => {
@@ -95,12 +107,17 @@ const AddBookModal = ({ onClose }) => {
 
     // ✅ Submit Book to Backend
 
-   const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // 🚨 Ensure required fields are not empty
     if (!formData.title.trim() || !formData.author.trim() || !formData.original_price.trim()) {
         alert("❌ Title, Author, and Original Price are required.");
+        return;
+    }
+
+    if (!formData.branch) {
+        alert("❌ Please select a valid branch.");
         return;
     }
 
@@ -112,13 +129,13 @@ const AddBookModal = ({ onClose }) => {
     try {
         const bookData = new FormData();
 
-        // ✅ Append book type (important for backend)
+        // ✅ Append book type
         bookData.append("bookType", bookType);
 
-        // ✅ Ensure original_price is stored as a number
-        bookData.append("original_price", parseFloat(formData.original_price) || 0);
+        // ✅ Append branch as full name
+        bookData.append("branch", formData.branch.trim());
 
-        // ✅ Append all form data properly
+        // ✅ Append all form data
         Object.keys(formData).forEach((key) => {
             if (key === "images") {
                 formData.images.forEach((file) => bookData.append("images", file));
@@ -142,6 +159,9 @@ const AddBookModal = ({ onClose }) => {
         alert(error.response?.data?.message || "❌ Failed to add book.");
     }
 };
+
+
+
 
     return (
         <div className="modal">
@@ -170,9 +190,18 @@ const AddBookModal = ({ onClose }) => {
                                 <input type="text" name="author" value={formData.author} onChange={handleChange} required />
                             </div>
                             <div>
-                                <label>Genre</label>
-                                <input type="text" name="genre" value={formData.genre} onChange={handleChange} />
+                                <label>Branch</label>
+                                <select name="branch" value={formData.branch} onChange={handleChange} required>
+                                    <option value="" disabled>Select Branch</option>
+                                    {branches.map((branch) => (
+                                        <option key={branch} value={branch}>
+                                            {branch}
+                                        </option>
+                                    ))}
+                                </select>
+
                             </div>
+
                             <div>
                                 <label>Price (₹)</label>
                                 <input type="number" name="original_price" value={formData.original_price} onChange={handleChange} required />
@@ -226,7 +255,7 @@ const AddBookModal = ({ onClose }) => {
                     </form>
                 )}
 
-                {/* ✅ Step 2: Old Book - Initial Details */}
+                {/* ✅ Step 3: Old Book - Initial Details */}
                 {step === 2 && bookType === "old" && (
                     <form onSubmit={handleOldBookNext}>
                         <h3>Old Book Details</h3>
@@ -305,8 +334,17 @@ const AddBookModal = ({ onClose }) => {
                         <label>Author</label>
                         <input type="text" name="author" value={formData.author} onChange={handleChange} required />
 
-                        <label>Genre</label>
-                        <input type="text" name="genre" value={formData.genre} onChange={handleChange} />
+                        <label>Branch</label>
+                        <select name="branch" value={formData.branch} onChange={handleChange} required>
+                            <option value="" disabled>Select Branch</option>
+                            {branches.map((branch) => (
+                                <option key={branch} value={branch}>
+                                    {branch}
+                                </option>
+                            ))}
+                        </select>
+
+
 
                         <label>Description</label>
                         <textarea name="description" value={formData.description} onChange={handleChange}></textarea>

@@ -1,12 +1,24 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "./BuyerNavbar.css";
+import LogoutModal from "../LogoutModal/LogoutModal"; // ✅ Import Logout Modal
 
 const BuyerNavbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false); // ✅ State to show/hide Logout Modal
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
+    };
+
+    // ✅ Open Logout Modal
+    const openLogoutModal = () => {
+        setIsLogoutModalOpen(true);
+    };
+
+    // ✅ Close Logout Modal
+    const closeLogoutModal = () => {
+        setIsLogoutModalOpen(false);
     };
 
     return (
@@ -32,9 +44,12 @@ const BuyerNavbar = () => {
                     <li><Link to="/buyer/orders">My Orders</Link></li>
                     <li><Link to="/buyer/wishlist">Wishlist</Link></li>
                     <li><Link to="/buyer/profile">Profile</Link></li>
-                    <li><Link to="/logout">Logout</Link></li>
+                    <li><Link onClick={openLogoutModal}>Logout</Link></li>
                 </ul>
             </nav>
+
+            {/* ✅ Logout Modal */}
+            {isLogoutModalOpen && <LogoutModal isOpen={isLogoutModalOpen} onClose={closeLogoutModal} />}
         </>
     );
 };

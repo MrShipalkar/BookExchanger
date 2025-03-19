@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllBooks } from "../../services/bookService";
+import { getAllBooks } from "../../../services/bookService";
 import "./BuyerDashboard.css";
 
 const BuyerDashboard = () => {
@@ -25,7 +25,12 @@ const BuyerDashboard = () => {
         navigate(`/buyer/book/${bookId}`);
     };
 
-    const filteredBooks = (books || []).filter(book =>
+    // Function to truncate text
+    const truncateText = (text, maxLength) => {
+        return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+    };
+
+    const filteredBooks = books.filter(book =>
         book.title.toLowerCase().includes(search.toLowerCase()) ||
         book.author.toLowerCase().includes(search.toLowerCase())
     );
@@ -47,9 +52,11 @@ const BuyerDashboard = () => {
                     filteredBooks.map((book) => (
                         <div key={book._id} className="book-card" onClick={() => handleBookClick(book._id)}>
                             <img src={book.images?.[0] || "default-book.jpg"} alt={book.title} />
-                            <h3>{book.title}</h3>
-                            <p>By {book.author}</p>
-                            <p>₹{book.price}</p>
+                            <h3>{truncateText(book.title, 20)}</h3>
+                            <p><strong>Author:</strong> {truncateText(book.author, 18)}</p>
+                            <p><strong>Price:</strong> ₹{book.price}</p>
+                            <p><strong>Rent Price:</strong> {book.rentPrice ? `₹${book.rentPrice}` : "Not Available"}</p>
+                            <p><strong>Seller:</strong> {truncateText(book.sellerName || "Unknown", 18)}</p>
                         </div>
                     ))
                 )}

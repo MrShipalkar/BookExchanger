@@ -8,17 +8,34 @@ const bookSchema = new mongoose.Schema(
       required: true, // Identify if the book is new or old
     },
 
-    title: { type: String, required: true }, 
+    title: { type: String, required: true },
     author: { type: String, required: true },
-    genre: { type: String }, 
-    description: { type: String }, 
-    // price: { type: Number, required: true }, 
-    rentPrice: { type: Number }, 
-    isRentable: { type: Boolean, default: false }, 
-    condition: { type: String, enum: ["new", "good", "average", "poor"], default: "good" }, 
-    publicationDate: { type: Date }, 
-    images: [{ type: String }], 
-    recommendations: [{ type: mongoose.Schema.Types.ObjectId, ref: "Book" }], 
+    // genre: { type: String },
+    branch: {
+      type: String,
+      enum: [
+          "Computer Science",
+          "Mechanical",
+          "Civil",
+          "Electrical",
+          "Electronics",
+          "IT",
+          "Other",
+      ],
+      required: true,
+  },
+    description: { type: String },
+    // price: { type: Number, required: true },
+    rentPrice: { type: Number },
+    isRentable: { type: Boolean, default: false },
+    condition: {
+      type: String,
+      enum: ["new", "good", "average", "poor"],
+      default: "good",
+    },
+    publicationDate: { type: Date },
+    images: [{ type: String }],
+    recommendations: [{ type: mongoose.Schema.Types.ObjectId, ref: "Book" }],
 
     // ⭐ Fields Only for OLD Books
     pages: { type: Number }, // Number of pages in the book
@@ -28,7 +45,7 @@ const bookSchema = new mongoose.Schema(
 
     // ⭐ Reviews & Ratings
     ratings: {
-      average: { type: Number, default: 0 }, 
+      average: { type: Number, default: 0 },
       reviews: [
         {
           buyer: { type: mongoose.Schema.Types.ObjectId, ref: "Buyer" },
@@ -39,18 +56,26 @@ const bookSchema = new mongoose.Schema(
       ],
     },
 
-    seller: { type: mongoose.Schema.Types.ObjectId, ref: "Seller", required: true }, 
-    status: { type: String, enum: ["available", "sold", "rented"], default: "available" }, 
-    rentalStart: { type: Date }, 
-    rentalEnd: { type: Date }, 
+    seller: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Seller",
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ["available", "sold", "rented"],
+      default: "available",
+    },
+    rentalStart: { type: Date },
+    rentalEnd: { type: Date },
     rentalHistory: [
       {
-        renter: { type: mongoose.Schema.Types.ObjectId, ref: "Buyer" }, 
-        rentalStart: { type: Date }, 
-        rentalEnd: { type: Date }, 
-        totalCost: { type: Number }, 
+        renter: { type: mongoose.Schema.Types.ObjectId, ref: "Buyer" },
+        rentalStart: { type: Date },
+        rentalEnd: { type: Date },
+        totalCost: { type: Number },
       },
-    ], 
+    ],
   },
   {
     timestamps: true, // Adds createdAt and updatedAt fields

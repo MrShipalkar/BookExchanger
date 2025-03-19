@@ -9,11 +9,11 @@ import Orders from "./pages/sellerPanel/orders/Orders";
 import Reports from "./pages/sellerPanel/reports/Reports";
 import Profile from "./pages/sellerPanel/profile/Profile";
 import SellerSidebar from "./components/sellerPanel/sellerSidebar/SellerSidebar";
-import BuyerDashboard from "./pages/buyerDashboard/BuyerDashboard";
-import ProductPage from "./pages/productPage/ProductPage";
-import BuyerNavbar from "./components/buyerPanel/buyerNavbar/BuyerNavbar"; // ✅ Import Buyer Navbar
-import MyOrders from "./components/buyerPanel/myOrders/MyOrders";
-import BuyerProfile from "./components/buyerPanel/profile/Profile";
+import BuyerDashboard from "./pages/buyerPanel/buyerDashboard/BuyerDashboard";
+import ProductPage from "./pages/buyerPanel/productPage/ProductPage";
+import BuyerNavbar from "./pages/buyerPanel/buyerNavbar/BuyerNavbar"; // ✅ Import Buyer Navbar
+import MyOrders from "./pages/buyerPanel/myOrders/MyOrders";
+import BuyerProfile from "./pages/buyerPanel/profile/Profile";
 
 const App = () => {
     return (

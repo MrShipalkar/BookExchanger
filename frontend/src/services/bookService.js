@@ -98,3 +98,31 @@ export const getBookById = async (bookId) => {
         throw new Error(error.response?.data?.message || "Failed to fetch book.");
     }
 };
+
+// ✅ Fetch similar books by bookId
+export const getSimilarBooks = async (bookId) => {
+    try {
+        const response = await api.get(`/books/similar/${bookId}`);
+        return response.data;
+    } catch (error) {
+        console.error("❌ Error fetching similar books:", error.response?.data || error.message);
+        if (error.response?.status === 404) {
+            return []; // Return empty array if no similar books are found
+        }
+        throw new Error("Failed to fetch similar books.");
+    }
+};
+
+
+
+
+// ✅ Fetch branches dynamically from the backend
+export const getBranches = async () => {
+    try {
+        const response = await api.get("/books/branches"); // ✅ Fetch from backend
+        return response.data.branches; // ✅ Return branches list
+    } catch (error) {
+        console.error("❌ Error fetching branches:", error.response?.data || error.message);
+        return []; // Return an empty array in case of error
+    }
+};
