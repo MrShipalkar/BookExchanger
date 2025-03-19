@@ -46,9 +46,11 @@ const ManageBooks = () => {
                     <tr>
                         <th>Title</th>
                         <th>Author</th>
-                        <th>Price</th>
-                        <th>Rent Price</th>
-                        <th>Genre</th>
+                        <th>Book Type</th>  {/* ✅ Added Book Type */}
+                        <th>Branch</th> {/* ✅ Changed Genre to Branch */}
+                        <th>Original Price (₹)</th> {/* ✅ Changed Price to Original Price */}
+                        <th>Predicted Price (₹)</th> {/* ✅ Added Predicted Price */}
+                        <th>Rent Price (₹)</th>
                         <th>Condition</th>
                         <th>Rentable</th>
                         <th>Action</th>
@@ -57,27 +59,35 @@ const ManageBooks = () => {
                 <tbody>
                     {books.length > 0 ? (
                         books.map((book) => (
-                            <tr key={book._id}>
-                                <td>{book.title}</td>
-                                <td>{book.author}</td>
-                                <td>₹{book.price}</td>
-                                <td>₹{book.rentPrice}</td>
-                                <td>{book.genre}</td>
-                                <td>{book.condition}</td>
-                                <td>{book.isRentable ? "Yes" : "No"}</td>
-                                <td className="action-buttons">
-                                    <button className="edit-btn" onClick={() => handleEditClick(book)}>
-                                        <FaEdit />
-                                    </button>
-                                    <button className="delete-btn" onClick={() => handleDelete(book._id)}>
-                                        <FaTrash />
-                                    </button>
-                                </td>
-                            </tr>
+                            book && ( // ✅ Ensure `book` exists before rendering
+                                <tr key={book._id}>
+                                    <td>{book.title || "N/A"}</td>
+                                    <td>{book.author || "N/A"}</td>
+                                    <td>
+                                        {book.bookType ? 
+                                            book.bookType.charAt(0).toUpperCase() + book.bookType.slice(1) 
+                                            : "N/A"} {/* ✅ Fix charAt() Error */}
+                                    </td>
+                                    <td>{book.branch || "N/A"}</td> {/* ✅ Show Branch */}
+                                    <td>₹{book.original_price ?? "N/A"}</td> {/* ✅ Show Original Price */}
+                                    <td>₹{book.predictedPrice ?? "N/A"}</td> {/* ✅ Show Predicted Price */}
+                                    <td>{book.rentPrice ? `₹${book.rentPrice}` : "N/A"}</td>
+                                    <td>{book.condition || "N/A"}</td>
+                                    <td>{book.isRentable ? "Yes" : "No"}</td>
+                                    <td className="action-buttons">
+                                        <button className="edit-btn" onClick={() => handleEditClick(book)}>
+                                            <FaEdit />
+                                        </button>
+                                        <button className="delete-btn" onClick={() => handleDelete(book._id)}>
+                                            <FaTrash />
+                                        </button>
+                                    </td>
+                                </tr>
+                            )
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="8">No books found.</td>
+                            <td colSpan="10">No books found.</td>
                         </tr>
                     )}
                 </tbody>

@@ -14,6 +14,14 @@
     font-size: 16px;
 }
 
+/* Book Sections */
+h3 {
+    margin-top: 20px;
+    text-align: left;
+    padding-left: 20px;
+    font-size: 20px;
+}
+
 /* Book Grid Layout */
 .book-grid {
     display: grid;
@@ -34,7 +42,7 @@
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
     color: black;
-    width: 300px;
+    width: 250px;
     min-height: 350px; /* Ensures consistent card height */
     display: flex;
     flex-direction: column;

@@ -264,18 +264,20 @@ const getAllBooks = async (req, res) => {
 const getBookById = async (req, res) => {
     try {
         const { id } = req.params;
-        const book = await Book.findById(id);
+        const book = await Book.findById(id)
+            .populate("seller", "name"); // ✅ Populate seller name
 
         if (!book) {
-            return res.status(404).json({ message: "Book not found" });
+            return res.status(404).json({ message: "Book not found." });
         }
 
         res.status(200).json(book);
     } catch (error) {
-        console.error("Error fetching book by ID:", error);
-        res.status(500).json({ message: "Internal Server Error", error });
+        console.error("Error fetching book:", error);
+        res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
 
 // ✅ Get Similar Books Based on Genre
 const getSimilarBooks = async (req, res) => {

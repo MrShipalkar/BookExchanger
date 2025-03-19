@@ -21,7 +21,7 @@ const ProductPage = () => {
             try {
                 const bookData = await getBookById(bookId);
                 setBook(bookData);
-                setSelectedImage(bookData.images?.[0] || "default-book.jpg");
+                setSelectedImage(bookData.images?.[0] || "/default-book.jpg");
 
                 // Fetch similar books
                 const similarBooksData = await getSimilarBooks(bookId);
@@ -61,11 +61,22 @@ const ProductPage = () => {
                 {/* Right Side - Book Details */}
                 <div className="details-section">
                     <h2>{book.title}</h2>
-                    <p className="author">By {book.author}</p>
-                    <p className="price">₹{book.price}</p>
-                    <p className="rent-price">Rent Price: {book.rentPrice ? `₹${book.rentPrice}` : "Not Available"}</p>
-                    <p className="seller">Seller: {book.sellerName || "Unknown"}</p>
-                    <p className="description">{book.description.length > 150 ? book.description.substring(0, 150) + "..." : book.description}</p>
+                    <p className="author"><strong>By:</strong> {book.author}</p>
+                    <p className="book-type"><strong>Book Type:</strong> {book.bookType}</p>
+                    <p className="branch"><strong>Branch:</strong> {book.branch}</p>
+                    <p className="condition"><strong>Condition:</strong> {book.condition}</p>
+                    <p className="pages"><strong>Pages:</strong> {book.pages || "N/A"}</p>
+                    <p className="publication-date">
+                        <strong>Publication Date:</strong> {book.publicationDate ? new Date(book.publicationDate).toLocaleDateString() : "N/A"}
+                    </p>
+                    <p className="price"><strong>Price:</strong> ₹{book.original_price}</p>
+                    <p className="predicted-price"><strong>Predicted Price:</strong> ₹{book.predictedPrice || "N/A"}</p>
+                    <p className="rent-price"><strong>Rent Price:</strong> {book.isRentable ? `₹${book.rentPrice}` : "Not Available"}</p>
+                    <p className="seller">
+                        <strong>Seller:</strong> {book.seller?.name || "Unknown"}
+                    </p>
+
+                    <p className="description"><strong>Description:</strong> {book.description || "No description available."}</p>
 
                     {/* Buttons */}
                     <div className="action-buttons">
@@ -82,9 +93,9 @@ const ProductPage = () => {
                     {similarBooks.length > 0 ? (
                         similarBooks.map((sBook) => (
                             <div key={sBook._id} className="similar-card">
-                                <img src={sBook.images?.[0] || "default-book.jpg"} alt={sBook.title} />
+                                <img src={sBook.images?.[0] || "/default-book.jpg"} alt={sBook.title} />
                                 <p>{sBook.title.length > 20 ? sBook.title.substring(0, 20) + "..." : sBook.title}</p>
-                                <p><strong>₹{sBook.price}</strong></p>
+                                <p><strong>₹{sBook.original_price}</strong></p>
                             </div>
                         ))
                     ) : (
