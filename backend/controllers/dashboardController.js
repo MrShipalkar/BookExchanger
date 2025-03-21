@@ -1,59 +1,60 @@
 const Order = require("../models/Order");
 const Book = require("../models/Book");
+const mongoose = require('mongoose');
+
 
 // ✅ Fetch Seller Dashboard Stats
 const getSellerDashboardStats = async (req, res) => {
     try {
         const sellerId = req.user.id;
 
-        // Total Sales Count
-        const totalSales = await Order.countDocuments({ seller: sellerId, status: "Delivered" });
+        // ✅ Fetch Total Sales Count (All Completed Orders)
+        const totalSales = await Order.countDocuments({ seller: sellerId });
 
-        // Total Revenue
-        const totalRevenue = await Order.aggregate([
-            { $match: { seller: sellerId, status: "Delivered" } },
-            { $group: { _id: null, total: { $sum: "$totalPrice" } } },
+        // ✅ Fetch Total Revenue
+        const revenueData = await Order.aggregate([
+            { $match: { seller: new mongoose.Types.ObjectId(sellerId), status: "Delivered" } },
+            { $group: { _id: null, totalRevenue: { $sum: "$price" } } }
         ]);
+        const totalRevenue = revenueData.length > 0 ? revenueData[0].totalRevenue : 0;
 
-        // Total Books Sold
-        const booksSold = await Order.aggregate([
-            { $match: { seller: sellerId, status: "Delivered" } },
-            { $unwind: "$books" },
-            { $group: { _id: null, totalSold: { $sum: "$books.quantity" } } },
-        ]);
+        // ✅ Fetch Total Books Sold
+        const booksSold = await Order.countDocuments({ seller: sellerId, status: "Delivered" });
 
-        // Total Books Listed
+        // ✅ Fetch Total Books Listed
         const totalBooksListed = await Book.countDocuments({ seller: sellerId });
 
-        res.status(200).json({
+        res.json({
             totalSales,
-            totalRevenue: totalRevenue.length > 0 ? totalRevenue[0].total : 0,
-            booksSold: booksSold.length > 0 ? booksSold[0].totalSold : 0,
-            totalBooksListed,
+            totalRevenue,
+            booksSold,
+            totalBooksListed
         });
     } catch (error) {
-        console.error("Error fetching dashboard stats:", error);
-        res.status(500).json({ message: "Server error" });
+        console.error("Error fetching seller stats:", error);
+        res.status(500).json({ message: "Failed to fetch seller stats." });
     }
 };
+
 
 // ✅ Fetch Recent Orders for Dashboard
 const getRecentOrders = async (req, res) => {
     try {
         const sellerId = req.user.id;
 
-        const recentOrders = await Order.find({ seller: sellerId })
-            .sort({ createdAt: -1 }) // Sort by most recent
-            .limit(5) // Get last 5 orders
-            .populate("buyer", "name")
-            .populate("books.book", "title");
+        // ✅ Find latest 5 orders by seller
+        const orders = await Order.find({ seller: sellerId })
+            .populate("book buyer")
+            .sort({ createdAt: -1 }) // ✅ Sort by latest orders
+            .limit(5);
 
-        res.status(200).json(recentOrders);
+        res.json(orders);
     } catch (error) {
         console.error("Error fetching recent orders:", error);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Failed to fetch recent orders." });
     }
 };
+
 
 // ✅ Fetch Sales Data for Charts
 const getSalesChartData = async (req, res) => {

@@ -29,10 +29,11 @@ export const getRecentOrders = async () => {
 };
 
 // ✅ Get Sales Chart Data
+// ✅ Get Sales Chart Data
 export const getSalesChartData = async () => {
     try {
         const token = localStorage.getItem("token");
-        const response = await api.get("/dashboard/seller/sales-chart", {
+        const response = await api.get("seller/reports/sales", {
             headers: { "auth-token": token },
         });
         return response.data;
@@ -41,3 +42,5 @@ export const getSalesChartData = async () => {
         throw new Error(error.response?.data?.message || "Failed to fetch sales data.");
     }
 };
+
+

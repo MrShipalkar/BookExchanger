@@ -3,8 +3,13 @@ const Book = require("../models/Book");
 
 exports.getSalesReport = async (req, res) => {
     try {
-        const sellerId = req.user.id;
+        const sellerId = req.user?.id || req.user?._id;
+
         const { range } = req.query;
+
+        console.log("📥 Seller ID:", sellerId);
+        console.log("📆 Date Range:", range);
+
         let dateFilter = {};
         const now = new Date();
 
@@ -14,14 +19,32 @@ exports.getSalesReport = async (req, res) => {
             dateFilter = { createdAt: { $gte: new Date(now.getFullYear(), 0, 1) } };
         }
 
-        const orders = await Order.find({ sellerId, ...dateFilter });
-        const totalSales = orders.reduce((sum, order) => sum + order.totalAmount, 0);
+        const orders = await Order.find({ 
+            seller: sellerId, 
+            ...dateFilter, 
+            status: "Delivered" 
+        });
+        console.log("🧪 Seller ID:", sellerId);
+
+const debugOrders = await Order.find({}); // Fetch all orders
+console.log("🧪 Sample Order:", debugOrders[0]);
+
+
+        console.log("📦 Orders found:", orders.length);
+
+        const totalSales = orders.reduce((sum, order) => sum + order.price, 0);
 
         res.json({ totalSales, ordersCount: orders.length });
     } catch (error) {
-        res.status(500).json({ message: "Error fetching sales report", error });
+        console.error("❌ Error in getSalesReport:", error);
+        res.status(500).json({
+            message: "Error fetching sales report",
+            error: error.message || error
+        });
     }
 };
+
+
 
 exports.getBestSellingBooks = async (req, res) => {
     try {

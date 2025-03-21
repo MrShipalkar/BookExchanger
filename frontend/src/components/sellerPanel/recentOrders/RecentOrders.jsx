@@ -12,7 +12,7 @@ const RecentOrders = () => {
     const fetchOrders = async () => {
         try {
             const response = await getRecentOrders();
-            setOrders(response);
+            setOrders(response); // ✅ Store API response directly
         } catch (error) {
             console.error("Error fetching recent orders:", error);
         }
@@ -25,24 +25,26 @@ const RecentOrders = () => {
                 <thead>
                     <tr>
                         <th>Book</th>
+                        <th>Order Type</th>
+                        <th>Buyer</th>
                         <th>Price</th>
                         <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     {orders.length > 0 ? (
-                        orders.map((order) =>
-                            order.books.map((bookItem, index) => (
-                                <tr key={`${order._id}-${index}`}>
-                                    <td>{bookItem.book?.title || "Unknown Book"}</td>
-                                    <td>₹{bookItem.book?.price || "N/A"}</td>
-                                    <td>{getOrderStatusIcon(order.status)}</td>
-                                </tr>
-                            ))
-                        )
+                        orders.map((order) => (
+                            <tr key={order._id}>
+                                <td>{order.book?.title || "Unknown Book"}</td>
+                                <td>{order.orderType === "rent" ? "📅 Rent" : "🛍 Purchase"}</td>
+                                <td>{order.buyer?.name || "Unknown Buyer"}</td>
+                                <td>₹{order.price || "N/A"}</td>
+                                <td>{getOrderStatusIcon(order.status)}</td>
+                            </tr>
+                        ))
                     ) : (
                         <tr>
-                            <td colSpan="3">No recent orders found.</td>
+                            <td colSpan="5">No recent orders found.</td>
                         </tr>
                     )}
                 </tbody>
@@ -56,8 +58,6 @@ const getOrderStatusIcon = (status) => {
     switch (status) {
         case "Pending":
             return "⏳ Pending";
-        case "Processing":
-            return "🔄 Processing";
         case "Shipped":
             return "🚚 Shipped";
         case "Delivered":

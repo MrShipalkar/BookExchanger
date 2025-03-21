@@ -13,6 +13,7 @@ const SellerStats = () => {
     const fetchStats = async () => {
         try {
             const response = await getSellerDashboardStats();
+            console.log("📊 Seller Stats Response:", response); // ✅ Debugging Log
             setStats(response);
         } catch (error) {
             console.error("Error fetching seller stats:", error);
@@ -29,19 +30,19 @@ const SellerStats = () => {
                 <div className="seller-stats">
                     <div className="stat-card">
                         <h3>Total Sales</h3>
-                        <p>{stats.totalSales}</p>
+                        <p>{stats.totalSales ?? 0}</p>
                     </div>
                     <div className="stat-card">
                         <h3>Total Revenue</h3>
-                        <p>₹{stats.totalRevenue}</p>
+                        <p>₹{stats.totalRevenue ?? 0}</p> {/* ✅ Now displays only delivered revenue */}
                     </div>
                     <div className="stat-card">
                         <h3>Books Sold</h3>
-                        <p>{stats.booksSold}</p>
+                        <p>{stats.booksSold ?? 0}</p>
                     </div>
                     <div className="stat-card">
                         <h3>Books Listed</h3>
-                        <p>{stats.totalBooksListed}</p>
+                        <p>{stats.totalBooksListed ?? 0}</p>
                     </div>
                 </div>
             ) : (
