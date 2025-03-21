@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { getAllChats } from "../../../services/chatService";
-import { useNavigate } from "react-router-dom";
+import { getAllChats, getChatById } from "../../../services/chatService";
+import BuyerChatModal from "./BuyerChatModal"; // ✅ Import modal
 import "./BuyerChats.css";
 
 const BuyerChats = () => {
     const [chats, setChats] = useState([]);
+    const [selectedChat, setSelectedChat] = useState(null);
+    const [showChatModal, setShowChatModal] = useState(false);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchChats = async () => {
@@ -23,8 +24,14 @@ const BuyerChats = () => {
         fetchChats();
     }, []);
 
-    const handleChatClick = (chatId) => {
-        navigate(`/buyer/chat/${chatId}`);
+    const handleChatClick = async (chatId) => {
+        try {
+            const chatDetails = await getChatById(chatId);
+            setSelectedChat(chatDetails);
+            setShowChatModal(true); // ✅ Open modal when chat is clicked
+        } catch (error) {
+            console.error("Error fetching chat details:", error);
+        }
     };
 
     return (
@@ -47,6 +54,11 @@ const BuyerChats = () => {
                         </div>
                     ))}
                 </div>
+            )}
+
+            {/* ✅ Show Buyer Chat Modal when a chat is selected */}
+            {showChatModal && selectedChat && (
+                <BuyerChatModal chatId={selectedChat._id} onClose={() => setShowChatModal(false)} />
             )}
         </div>
     );

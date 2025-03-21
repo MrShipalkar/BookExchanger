@@ -15,9 +15,9 @@ import BuyerNavbar from "./pages/buyerPanel/buyerNavbar/BuyerNavbar"; // ✅ Imp
 import MyOrders from "./pages/buyerPanel/myOrders/MyOrders";
 import BuyerProfile from "./pages/buyerPanel/profile/Profile";
 import BuyerChats from "./pages/buyerPanel/chats/BuyerChats";
-import BuyerChatWindow from "./pages/buyerPanel/chats/BuyerChatWindow";
+// import BuyerChatWindow from "./pages/buyerPanel/chats/BuyerChatWindow";
 import SellerChats from "./pages/sellerPanel/chats/SellerChats";
-import SellerChatWindow from "./pages/sellerPanel/chats/SellerChatWindow";
+// import SellerChatWindow from "./pages/sellerPanel/chats/SellerChatModal";
 
 
 const App = () => {
@@ -43,7 +43,7 @@ const App = () => {
                                     <Route path="profile" element={<BuyerProfile />} />
                                      {/* ✅ Add Chat Routes Here */}
                     <Route path="chats" element={<BuyerChats />} />
-                    <Route path="chat/:chatId" element={<BuyerChatWindow />} />
+                    {/* <Route path="chat/:chatId" element={<BuyerChatWindow />} /> */}
                                 </Routes>
                             </div>
                         </div>
@@ -64,7 +64,7 @@ const App = () => {
                                     <Route path="reports" element={<Reports />} />
                                     <Route path="profile" element={<Profile />} />
                                     <Route path="chats" element={<SellerChats />} />
-<Route path="chat/:chatId" element={<SellerChatWindow />} />
+{/* <Route path="chat/:chatId" element={<SellerChatWindow />} /> */}
                                 </Routes>
                             </div>
                         </div>

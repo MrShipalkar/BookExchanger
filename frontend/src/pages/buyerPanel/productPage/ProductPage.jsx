@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { getBookById, getSimilarBooks } from "../../../services/bookService";
-import { startChatWithSeller } from "../../../services/chatService"; // ✅ Import chat service
+import { startChatWithSeller } from "../../../services/chatService";
+import BuyerChatWindow from "../chats/BuyerChatModal";
 import "./ProductPage.css";
 
 const ProductPage = () => {
     const { bookId } = useParams();
-    const navigate = useNavigate();
     const [book, setBook] = useState(null);
     const [selectedImage, setSelectedImage] = useState("");
     const [similarBooks, setSimilarBooks] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [chat, setChat] = useState(null);
+    const [showChatModal, setShowChatModal] = useState(false);
 
     useEffect(() => {
         if (!bookId) {
@@ -25,7 +27,6 @@ const ProductPage = () => {
                 setBook(bookData);
                 setSelectedImage(bookData.images?.[0] || "/default-book.jpg");
 
-                // Fetch similar books
                 const similarBooksData = await getSimilarBooks(bookId);
                 setSimilarBooks(similarBooksData);
             } catch (error) {
@@ -45,12 +46,15 @@ const ProductPage = () => {
         }
 
         try {
-            await startChatWithSeller(book._id, book.seller._id, navigate);
+            const response = await startChatWithSeller(book._id, book.seller._id);
+            if (response?.chat) {
+                setChat(response.chat);
+                setShowChatModal(true);
+            }
         } catch (error) {
             console.error("Error starting chat:", error);
         }
     };
-
 
     if (loading) return <p>Loading...</p>;
     if (!book) return <p>Book not found.</p>;
@@ -58,7 +62,6 @@ const ProductPage = () => {
     return (
         <div className="product-page">
             <div className="product-container">
-                {/* Left Side - Book Images */}
                 <div className="image-section">
                     <div className="thumbnail-list">
                         {book.images?.map((img, index) => (
@@ -74,24 +77,20 @@ const ProductPage = () => {
                     <img className="main-image" src={selectedImage} alt={book.title} />
                 </div>
 
-                {/* Right Side - Book Details */}
                 <div className="details-section">
                     <h2>{book.title}</h2>
-                    <p className="author"><strong>By:</strong> {book.author}</p>
-                    <p className="book-type"><strong>Book Type:</strong> {book.bookType}</p>
-                    <p className="branch"><strong>Branch:</strong> {book.branch}</p>
-                    <p className="condition"><strong>Condition:</strong> {book.condition}</p>
-                    <p className="pages"><strong>Pages:</strong> {book.pages || "N/A"}</p>
-                    <p className="publication-date">
-                        <strong>Publication Date:</strong> {book.publicationDate ? new Date(book.publicationDate).toLocaleDateString() : "N/A"}
-                    </p>
-                    <p className="price"><strong>Price:</strong> ₹{book.original_price}</p>
-                    <p className="predicted-price"><strong>Predicted Price:</strong> ₹{book.predictedPrice || "N/A"}</p>
-                    <p className="rent-price"><strong>Rent Price:</strong> {book.isRentable ? `₹${book.rentPrice}` : "Not Available"}</p>
-                    <p className="seller"><strong>Seller:</strong> {book.seller?.name || "Unknown"}</p>
-                    <p className="description"><strong>Description:</strong> {book.description || "No description available."}</p>
+                    <p><strong>Author:</strong> {book.author}</p>
+                    <p><strong>Book Type:</strong> {book.bookType}</p>
+                    <p><strong>Branch:</strong> {book.branch}</p>
+                    <p><strong>Condition:</strong> {book.condition}</p>
+                    <p><strong>Pages:</strong> {book.pages || "N/A"}</p>
+                    <p><strong>Publication Date:</strong> {book.publicationDate ? new Date(book.publicationDate).toLocaleDateString() : "N/A"}</p>
+                    <p><strong>Price:</strong> ₹{book.original_price}</p>
+                    <p><strong>Predicted Price:</strong> ₹{book.predictedPrice || "N/A"}</p>
+                    <p><strong>Rent Price:</strong> {book.isRentable ? `₹${book.rentPrice}` : "Not Available"}</p>
+                    <p><strong>Seller:</strong> {book.seller?.name || "Unknown"}</p>
+                    <p><strong>Description:</strong> {book.description || "No description available."}</p>
 
-                    {/* Buttons */}
                     <div className="action-buttons">
                         <button className="chat-with-seller" onClick={handleStartChat}>
                             Chat with Seller
@@ -99,7 +98,7 @@ const ProductPage = () => {
                     </div>
                 </div>
             </div>
-            {/* Similar Books Section */}
+
             <div className="similar-books">
                 <h3>Similar Books</h3>
                 <div className="scroll-container">
@@ -116,6 +115,16 @@ const ProductPage = () => {
                     )}
                 </div>
             </div>
+
+            {showChatModal && chat && (
+                <div className="buyer-chat-modal">
+                    <div className="buyer-chat-modal-overlay" onClick={() => setShowChatModal(false)}></div>
+                    <div className="buyer-chat-modal-content">
+                        <button className="chat-modal-close" onClick={() => setShowChatModal(false)}>X</button>
+                        <BuyerChatWindow chatId={chat._id} onClose={() => setShowChatModal(false)} />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

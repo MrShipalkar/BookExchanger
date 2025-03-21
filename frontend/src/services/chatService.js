@@ -109,7 +109,7 @@ export const sendMessage = async (chatId, message) => {
 // ✅ Start a Chat and Redirect to Chat Page
 // ✅ Fix the API endpoint to `/api/chats/start`
 // ✅ Start a Chat and Redirect to Chat Page
-export const startChatWithSeller = async (bookId, sellerId, navigate) => {
+export const startChatWithSeller = async (bookId, sellerId) => {
     try {
         const token = localStorage.getItem("token");
 
@@ -120,8 +120,7 @@ export const startChatWithSeller = async (bookId, sellerId, navigate) => {
         console.log("Chat Response:", response.data); // ✅ Debugging log
 
         if (response.data.chat && response.data.chat._id) {
-            // ✅ Redirect to the chat page with the chatId
-            navigate(`/buyer/chat/${response.data.chat._id}`);
+            return response.data; // ✅ Return chat data
         } else {
             throw new Error("Chat ID not received.");
         }
@@ -130,6 +129,8 @@ export const startChatWithSeller = async (bookId, sellerId, navigate) => {
         throw new Error(error.response?.data?.message || "Failed to start chat.");
     }
 };
+
+
 
 
 // ✅ Fetch Chat by Chat ID
