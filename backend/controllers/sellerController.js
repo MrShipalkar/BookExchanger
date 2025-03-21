@@ -50,11 +50,19 @@ const sellerLogin = async (req, res) => {
 
         const token = jwt.sign({ id: seller._id, role: "seller" }, process.env.JWT_SECRET, { expiresIn: "1d" });
 
-        res.status(200).json({ token, message: "Login successful" });
+        // ✅ Return seller details along with token
+        res.status(200).json({
+            token,
+            userId: seller._id, // ✅ Send seller ID
+            role: "seller", // ✅ Send user role
+            name: seller.name, // ✅ Send seller name
+            message: "Login successful",
+        });
     } catch (error) {
         res.status(500).json({ message: "Server error", error });
     }
 };
+
 
 // ✅ Fetch Seller Profile
 const getSellerProfile = async (req, res) => {

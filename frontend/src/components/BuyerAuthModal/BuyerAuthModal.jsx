@@ -41,20 +41,30 @@ const BuyerAuthModal = ({ isOpen, onClose }) => {
             const response = isLogin
                 ? await buyerLogin({ email: formData.email, password: formData.password })
                 : await buyerSignup(formData);
-
+    
             // ✅ Handle successful response
             alert(response.message);
             resetForm();
             onClose(); // Close the modal
-
+    
+            // ✅ Save user info in localStorage after successful login
+            if (isLogin && response.token) {
+                localStorage.setItem("userId", response.userId);
+                localStorage.setItem("userRole", response.role.toLowerCase()); // ✅ Ensure lowercase "buyer" or "seller"
+                localStorage.setItem("userName", response.name);
+                localStorage.setItem("token", response.token);
+            }
+    
             // ✅ Redirect to Buyer Dashboard after successful login
             if (isLogin) {
                 navigate("/buyer/dashboard");
             }
+    
         } catch (error) {
             setError(error.response?.data?.message || "Something went wrong");
         }
     };
+    
 
     const handleModalClose = () => {
         resetForm();

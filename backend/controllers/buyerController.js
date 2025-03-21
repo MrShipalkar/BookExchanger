@@ -35,11 +35,19 @@ const buyerLogin = async (req, res) => {
 
         const token = jwt.sign({ id: buyer._id, role: 'buyer' }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
-        res.status(200).json({ token, message: 'Login successful' });
+        // ✅ Return buyer details along with token
+        res.status(200).json({
+            token,
+            userId: buyer._id, // ✅ Send buyer ID
+            role: "buyer", // ✅ Send user role
+            name: buyer.name, // ✅ Send buyer name
+            message: "Login successful",
+        });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });
     }
 };
+
 
 // ✅ Fetch Buyer Profile
 const getBuyerProfile = async (req, res) => {

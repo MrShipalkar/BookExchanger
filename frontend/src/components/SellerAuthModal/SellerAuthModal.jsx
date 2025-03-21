@@ -46,16 +46,28 @@ const SellerAuthModal = ({ isOpen, onClose }) => {
             const response = isLogin
                 ? await sellerLogin({ email: formData.email, password: formData.password })
                 : await sellerSignup(formData);
-
-            // Handle successful response
+    
+            // ✅ Handle successful response
             alert(response.message);
             resetForm();
-            onClose();
-            navigate("/seller/dashboard"); // Redirect seller to dashboard after successful login/signup
+            onClose(); // Close modal
+    
+            // ✅ Save seller info in localStorage after successful login
+            if (isLogin && response.token) {
+                localStorage.setItem("userId", response.userId);
+                localStorage.setItem("userRole", response.role.toLowerCase()); // ✅ Store role as "buyer" or "seller"
+                localStorage.setItem("userName", response.name);
+                localStorage.setItem("token", response.token);
+            }
+    
+            // ✅ Redirect seller to dashboard after successful login/signup
+            navigate("/seller/dashboard");
+    
         } catch (error) {
             setError(error.response?.data?.message || "Something went wrong");
         }
     };
+    
 
     const handleModalClose = () => {
         resetForm(); // Reset fields when modal is closed

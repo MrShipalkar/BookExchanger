@@ -43,6 +43,7 @@ const BuyerNavbar = () => {
                     <li><Link to="/buyer/dashboard">Home</Link></li>
                     <li><Link to="/buyer/orders">My Orders</Link></li>
                     <li><Link to="/buyer/wishlist">Wishlist</Link></li>
+                    <li><Link to="/buyer/chats">Chats</Link></li>  {/* ✅ Added Chat Section */}
                     <li><Link to="/buyer/profile">Profile</Link></li>
                     <li><Link onClick={openLogoutModal}>Logout</Link></li>
                 </ul>

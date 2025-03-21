@@ -1,0 +1,100 @@
+/* Seller Chat Window */
+.seller-chat-window {
+    display: flex;
+    flex-direction: column;
+    height: 500px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+/* Seller Chat Header */
+.seller-chat-header {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Seller Messages Container */
+.seller-messages-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Message Wrapper */
+.seller-message-wrapper {
+    display: flex;
+    max-width: 70%;
+}
+
+/* Seller Messages (Green, Right-Aligned) */
+.seller-message {
+    align-self: flex-end;
+    background: #28a745;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: left;
+    max-width: 60%;
+    word-wrap: break-word;
+}
+
+/* Buyer Messages in Seller Chat (Blue, Left-Aligned) */
+.seller-buyer-message {
+    align-self: flex-start;
+    background: #007bff;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: left;
+    max-width: 60%;
+    word-wrap: break-word;
+}
+
+/* Seller Timestamp */
+.seller-timestamp {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Seller Message Input Section */
+.seller-message-input {
+    display: flex;
+    padding: 10px;
+    background: white;
+    border-top: 1px solid #ddd;
+}
+
+.seller-message-input input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 18px;
+    background: white;
+    color: black;
+    font-size: 16px;
+}
+
+.seller-message-input button {
+    padding: 10px 20px;
+    border: none;
+    background: #007bff;
+    color: white;
+    border-radius: 18px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.seller-message-input button:disabled {
+    background: gray;
+    cursor: not-allowed;
+}

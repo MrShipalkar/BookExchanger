@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { getBookById, getSimilarBooks } from "../../../services/bookService";
+import { startChatWithSeller } from "../../../services/chatService"; // ✅ Import chat service
 import "./ProductPage.css";
 
 const ProductPage = () => {
     const { bookId } = useParams();
+    const navigate = useNavigate();
     const [book, setBook] = useState(null);
     const [selectedImage, setSelectedImage] = useState("");
     const [similarBooks, setSimilarBooks] = useState([]);
@@ -35,6 +37,20 @@ const ProductPage = () => {
 
         fetchBookDetails();
     }, [bookId]);
+
+    const handleStartChat = async () => {
+        if (!book || !book._id || !book.seller) {
+            console.error("Book or Seller data missing.");
+            return;
+        }
+
+        try {
+            await startChatWithSeller(book._id, book.seller._id, navigate);
+        } catch (error) {
+            console.error("Error starting chat:", error);
+        }
+    };
+
 
     if (loading) return <p>Loading...</p>;
     if (!book) return <p>Book not found.</p>;
@@ -72,20 +88,17 @@ const ProductPage = () => {
                     <p className="price"><strong>Price:</strong> ₹{book.original_price}</p>
                     <p className="predicted-price"><strong>Predicted Price:</strong> ₹{book.predictedPrice || "N/A"}</p>
                     <p className="rent-price"><strong>Rent Price:</strong> {book.isRentable ? `₹${book.rentPrice}` : "Not Available"}</p>
-                    <p className="seller">
-                        <strong>Seller:</strong> {book.seller?.name || "Unknown"}
-                    </p>
-
+                    <p className="seller"><strong>Seller:</strong> {book.seller?.name || "Unknown"}</p>
                     <p className="description"><strong>Description:</strong> {book.description || "No description available."}</p>
 
                     {/* Buttons */}
                     <div className="action-buttons">
-                        <button className="add-to-cart">ADD TO CART</button>
-                        <button className="buy-now">BUY NOW</button>
+                        <button className="chat-with-seller" onClick={handleStartChat}>
+                            Chat with Seller
+                        </button>
                     </div>
                 </div>
             </div>
-
             {/* Similar Books Section */}
             <div className="similar-books">
                 <h3>Similar Books</h3>

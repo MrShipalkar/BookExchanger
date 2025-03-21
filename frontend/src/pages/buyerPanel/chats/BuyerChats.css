@@ -1,0 +1,55 @@
+.buyer-chats-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: auto;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.chat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.chat-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.chat-item:hover {
+    transform: scale(1.03);
+}
+
+.book-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.chat-details {
+    flex: 1;
+}
+
+.chat-details h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.chat-details p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #555;
+}

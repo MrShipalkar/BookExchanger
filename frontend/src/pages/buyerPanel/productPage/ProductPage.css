@@ -198,6 +198,23 @@
     background-color: #0056b3;
 }
 
+/* Chat with Seller Button */
+.chat-with-seller {
+    background-color: #f39c12; /* Orange */
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.chat-with-seller:hover {
+    background-color: #e67e22; /* Darker Orange */
+}
+
+
 /* Responsive */
 @media (max-width: 768px) {
     .details-section {
