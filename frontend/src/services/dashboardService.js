@@ -33,7 +33,7 @@ export const getRecentOrders = async () => {
 export const getSalesChartData = async () => {
     try {
         const token = localStorage.getItem("token");
-        const response = await api.get("seller/reports/sales", {
+        const response = await api.get("/dashboard/seller/sales-chart", {
             headers: { "auth-token": token },
         });
         return response.data;
