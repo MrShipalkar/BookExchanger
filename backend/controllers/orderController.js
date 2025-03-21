@@ -87,12 +87,25 @@ const createOrder = async (req, res) => {
 const getOrdersBySeller = async (req, res) => {
     try {
         const sellerId = req.params.sellerId;
-        const orders = await Order.find({ seller: sellerId }).populate("book buyer chat");
+
+        if (!sellerId) {
+            return res.status(400).json({ message: "Seller ID is required." });
+        }
+
+        const orders = await Order.find({ seller: sellerId })
+            .populate("book buyer chat");
+
+        if (!orders || orders.length === 0) {
+            return res.status(404).json({ message: "No orders found for this seller." });
+        }
+
         res.json(orders);
     } catch (error) {
+        console.error("Error fetching orders:", error);
         res.status(500).json({ message: "Error fetching orders" });
     }
 };
+
 
 const getOrdersByBuyer = async (req, res) => {
     try {
@@ -104,8 +117,32 @@ const getOrdersByBuyer = async (req, res) => {
     }
 };
 
+const updateOrderStatus = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const { status } = req.body;
+
+        const validStatuses = ["Pending", "Shipped", "Delivered", "Cancelled"];
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({ message: "Invalid status value" });
+        }
+
+        const order = await Order.findByIdAndUpdate(orderId, { status }, { new: true });
+
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        res.json(order);
+    } catch (error) {
+        console.error("Error updating order status:", error);
+        res.status(500).json({ message: "Error updating order status" });
+    }
+};
+
 module.exports = {
     createOrder,
     getOrdersBySeller,
-    getOrdersByBuyer
+    getOrdersByBuyer,
+    updateOrderStatus
 };
