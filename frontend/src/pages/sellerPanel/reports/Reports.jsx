@@ -36,28 +36,28 @@ const Reports = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchReports();
-    }, [dateRange]); // Fetch data when date range changes
+        if (dateRange) {
+            console.log("📅 Date Range Changed:", dateRange); // ✅ Debugging
+            fetchReports();
+        }
+    }, [dateRange]); // ✅ Trigger fetch when dateRange changes
+
 
     const fetchReports = async () => {
         try {
             setLoading(true);
-            setErrorMessage(""); // Reset errors before fetching
-
-            // 🟢 Fetch Sales Report
+            setErrorMessage("");
+    
+            // ✅ Fetch sales data dynamically based on date range
             const salesResponse = await getSalesReport(dateRange);
             console.log("📊 Sales Report API Response:", salesResponse);
-
-            if (!salesResponse || !salesResponse.salesData || salesResponse.salesData.length === 0) {
-                throw new Error("No sales data found.");
-            }
-
+    
             setSalesData({
-                labels: salesResponse.labels || ["Jan", "Feb", "Mar", "Apr", "May", "Jun"], // API labels or fallback
+                labels: salesResponse.labels.length ? salesResponse.labels : ["No Data"],
                 datasets: [
                     {
                         label: "Sales Revenue (₹)",
-                        data: salesResponse.salesData || [0, 0, 0, 0, 0, 0], // Fallback to avoid empty chart
+                        data: salesResponse.salesData.length ? salesResponse.salesData : [0],
                         backgroundColor: "rgba(231, 76, 60, 0.5)",
                         borderColor: "#E74C3C",
                         borderWidth: 2,
@@ -65,15 +65,17 @@ const Reports = () => {
                     },
                 ],
             });
-
-            // 🟢 Fetch Best Selling Books
-            const bestSellersResponse = await getBestSellingBooks();
-            setBestSellingBooks(bestSellersResponse || []);
-
-            // 🟢 Fetch Order Summary Data
+    
+            // ✅ Fetch Order Summary
             const orderSummaryResponse = await getOrderSummary(dateRange);
+            console.log("📦 Order Summary API Response:", orderSummaryResponse);
             setOrderSummary(orderSummaryResponse || { completed: 0, pending: 0, cancelled: 0 });
-
+    
+            // ✅ Fetch Best Selling Books
+            const bestSellingBooksResponse = await getBestSellingBooks();
+            console.log("📚 Best Selling Books:", bestSellingBooksResponse);
+            setBestSellingBooks(bestSellingBooksResponse || []);
+    
         } catch (error) {
             setErrorMessage(error.message || "Error fetching reports.");
             console.error("❌ Error fetching reports:", error);
@@ -81,6 +83,11 @@ const Reports = () => {
             setLoading(false);
         }
     };
+    
+
+
+
+
 
     return (
         <div className="reports-container">
@@ -89,7 +96,14 @@ const Reports = () => {
             {/* Date Range Selector */}
             <div className="date-range">
                 <label>Select Date Range:</label>
-                <select value={dateRange} onChange={(e) => setDateRange(e.target.value)}>
+                <select
+                    value={dateRange}
+                    onChange={(e) => {
+                        console.log("📆 Selected Date Range:", e.target.value); // ✅ Debugging
+                        setDateRange(e.target.value);
+                    }}
+                >
+
                     <option value="daily">Daily</option>
                     <option value="weekly">Weekly</option>
                     <option value="monthly">Monthly</option>
@@ -158,6 +172,7 @@ const Reports = () => {
                                     </tr>
                                 )}
                             </tbody>
+
                         </table>
                     </div>
 

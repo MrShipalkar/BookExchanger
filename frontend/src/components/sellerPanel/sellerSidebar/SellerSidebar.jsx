@@ -39,7 +39,7 @@ const SellerSidebar = () => {
                     <li><NavLink to="/seller/manage-books" activeclassname="active">Manage Books</NavLink></li>
                     <li><NavLink to="/seller/orders" activeclassname="active">Orders</NavLink></li>
                     <li><NavLink to="/seller/reports" activeclassname="active">Reports</NavLink></li>
-                    <li><NavLink to="/seller/chats" activeclassname="active">💬 Chats</NavLink></li> {/* ✅ Added Chats Section */}
+                    <li><NavLink to="/seller/chats" activeclassname="active">Chats</NavLink></li> {/* ✅ Added Chats Section */}
                     <li><NavLink to="/seller/profile" activeclassname="active">Profile</NavLink></li>
                 </ul>
 
