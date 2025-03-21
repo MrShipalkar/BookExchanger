@@ -17,7 +17,10 @@ const SellerChats = () => {
         const fetchChats = async () => {
             try {
                 const chatData = await getAllChats();
-                setChats(chatData);
+                const sortedChats = chatData.sort(
+                    (a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated) // ✅ Sort chats by lastUpdated (latest first)
+                );
+                setChats(sortedChats);
             } catch (error) {
                 console.error("Error fetching chats:", error);
             } finally {
