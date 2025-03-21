@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { getAllChats, getChatById } from "../../../services/chatService";
+import { getAllChats, getChatById, markMessagesAsRead } from "../../../services/chatService";
 import BuyerChatModal from "./BuyerChatModal"; // ✅ Import modal
+import { io } from "socket.io-client";
 import "./BuyerChats.css";
+
+const socket = io("http://localhost:5000"); // ✅ Connect to WebSocket server
 
 const BuyerChats = () => {
     const [chats, setChats] = useState([]);
     const [selectedChat, setSelectedChat] = useState(null);
     const [showChatModal, setShowChatModal] = useState(false);
     const [loading, setLoading] = useState(true);
+    const userId = localStorage.getItem("userId");
 
     useEffect(() => {
         const fetchChats = async () => {
@@ -22,13 +26,34 @@ const BuyerChats = () => {
         };
 
         fetchChats();
+
+        // ✅ Listen for new messages
+        socket.on("receive_message", (newMessage) => {
+            setChats((prevChats) =>
+                prevChats.map((chat) =>
+                    chat._id === newMessage.chatId
+                        ? { ...chat, unreadMessages: chat.unreadMessages + 1 }
+                        : chat
+                )
+            );
+        });
+
+        return () => socket.off("receive_message");
     }, []);
 
     const handleChatClick = async (chatId) => {
         try {
             const chatDetails = await getChatById(chatId);
             setSelectedChat(chatDetails);
-            setShowChatModal(true); // ✅ Open modal when chat is clicked
+            setShowChatModal(true);
+
+            // ✅ Mark messages as read
+            await markMessagesAsRead(chatId);
+            setChats((prevChats) =>
+                prevChats.map((chat) =>
+                    chat._id === chatId ? { ...chat, unreadMessages: 0 } : chat
+                )
+            );
         } catch (error) {
             console.error("Error fetching chat details:", error);
         }
@@ -51,6 +76,8 @@ const BuyerChats = () => {
                                 <p>👤 Seller: {chat.seller.name || "Unknown"}</p>
                                 <p>📅 Last Updated: {new Date(chat.lastUpdated).toLocaleString()}</p>
                             </div>
+                            {/* ✅ Show unread message count (Always Visible) */}
+                            {chat.unreadMessages > 0 && <span className="unread-badge">{chat.unreadMessages}</span>}
                         </div>
                     ))}
                 </div>

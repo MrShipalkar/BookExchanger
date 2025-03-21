@@ -126,33 +126,83 @@ const getChat = async (req, res) => {
 // 📌 Get all Chats for a User (Both Buyer & Seller)
 const getAllChats = async (req, res) => {
     try {
-        const userId = req.user.id;
-        const userRole = req.user.role;
+        const userId = req.user.id; // Assuming user is authenticated
 
-        console.log(`Fetching chats for ${userRole} (User ID: ${userId})`); // ✅ Debugging log
+        const chats = await Chat.find({
+            $or: [{ buyer: userId }, { seller: userId }]
+        })
+        .populate("book", "title images")
+        .populate("buyer", "name")
+        .populate("seller", "name");
 
-        let chats;
-        if (userRole === "buyer") {
-            chats = await Chat.find({ buyer: userId })
-                .populate("seller", "name shopName")
-                .populate("book", "title images")
-                .sort({ lastUpdated: -1 });
-        } else {
-            chats = await Chat.find({ seller: userId })  
-                .populate("buyer", "name email")
-                .populate("book", "title images")
-                .sort({ lastUpdated: -1 });
-        }
+        // Calculate unread messages
+        const updatedChats = chats.map(chat => {
+            const unreadMessages = chat.messages.filter(
+                msg => msg.sender.toString() !== userId && !msg.read
+            ).length;
 
-        console.log(`Fetched ${chats.length} chats for ${userRole} (User ID: ${userId})`); // ✅ Debugging log
+            return { ...chat.toObject(), unreadMessages };
+        });
 
-        res.status(200).json(chats);
+        res.status(200).json(updatedChats);
     } catch (error) {
-        console.error("❌ Error fetching chats:", error);
-        res.status(500).json({ message: "Server error." });
+        res.status(500).json({ error: "Failed to fetch chats" });
     }
 };
 
+
+
+
+// ✅ Get count of unread messages for a buyer
+const getUnreadMessages = async (req, res) => {
+    try {
+        const userId = req.userId;
+
+        const chats = await Chat.find({
+            $or: [{ buyer: userId }, { seller: userId }]
+        });
+
+        const unreadData = chats.map(chat => {
+            const unreadCount = chat.messages.filter(
+                msg => msg.sender.toString() !== userId && !msg.read
+            ).length;
+
+            return {
+                chatId: chat._id,
+                unread: unreadCount
+            };
+        });
+
+        res.status(200).json(unreadData);
+    } catch (error) {
+        console.error("❌ Error fetching unread messages:", error);
+        res.status(500).json({ message: "Server error while fetching unread messages." });
+    }
+};
+
+// ✅ Mark messages as read when buyer opens a chat
+const markChatAsRead = async (req, res) => {
+    try {
+        const { chatId } = req.params;
+        const userId = req.user.id;
+
+        const chat = await Chat.findById(chatId);
+        if (!chat) {
+            return res.status(404).json({ message: "Chat not found" });
+        }
+
+        chat.messages.forEach(msg => {
+            if (msg.sender.toString() !== userId) {
+                msg.read = true;
+            }
+        });
+
+        await chat.save();
+        res.status(200).json({ message: "Messages marked as read" });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to update message read status" });
+    }
+};
 
 
 // 📌 Export Controllers
@@ -160,5 +210,7 @@ module.exports = {
     startChatWithSeller,
     sendMessage,
     getChat,
-    getAllChats
+    getAllChats,
+    markChatAsRead,
+    getUnreadMessages
 };

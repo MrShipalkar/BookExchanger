@@ -20,7 +20,7 @@ h2 {
     
 }
 
-.chat-item {
+/* .chat-item {
     display: flex;
     align-items: center;
     gap: 15px;
@@ -30,7 +30,7 @@ h2 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
-}
+} */
 
 .chat-item:hover {
     transform: scale(1.03);
@@ -58,6 +58,45 @@ h2 {
     font-size: 14px;
     color: #555;
 }
+
+/* Unread Message Badge */
+/* Unread Message Badge (Always Visible) */
+/* Navbar Unread Badge */
+.unread-badge {
+    background-color: red;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 5px 8px;
+    border-radius: 50%;
+    display: inline-block;
+    min-width: 20px;
+    min-height: 20px;
+    text-align: center;
+    margin-left: 5px;
+}
+
+/* Chat Card Unread Badge */
+.chat-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.unread-badge {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+}
+
+
 
 /* 📱 Mobile Styles */
 @media screen and (max-width: 768px) {

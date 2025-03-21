@@ -1,5 +1,5 @@
 const express = require('express');
-const { buyerSignup, buyerLogin, getBuyerProfile, updateBuyerProfile } = require('../controllers/buyerController');
+const { buyerSignup, buyerLogin, getBuyerProfile, updateBuyerProfile} = require('../controllers/buyerController');
 const { verifyToken } = require("../middlewares/authMiddleware");
 const router = express.Router();
 
@@ -10,5 +10,7 @@ router.get("/profile", verifyToken, getBuyerProfile);
 
 // ✅ Update Buyer Profile
 router.put("/profile", verifyToken, updateBuyerProfile);
+
+
 
 module.exports = router;

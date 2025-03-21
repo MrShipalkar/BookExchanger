@@ -37,24 +37,26 @@ export const startChat = async (data) => {
 //     }
 // };
 
-// ✅ Ensure all functions are properly exported
 export const getAllChats = async () => {
     try {
         const token = localStorage.getItem("token");
-        if (!token) throw new Error("Token not found");
+        if (!token) {
+            console.error("🚨 Token not found in localStorage");
+            throw new Error("User not authenticated.");
+        }
 
-        console.log("Fetching seller chats with token:", token); // ✅ Debugging log
+        console.log("📡 Fetching seller chats with token:", token); // ✅ Debugging log
 
-        const response = await axios.get("/chats/", {
+        const response = await axios.get(`/chats`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
 
-        console.log("Seller Chats API Response:", response.data); // ✅ Debugging log
+        console.log("✅ Seller Chats API Response:", response.data); // ✅ Debugging log
         return response.data;
     } catch (error) {
-        console.error("Error fetching chats:", error.response?.data || error.message);
+        console.error("❌ Error fetching chats:", error.response?.data || error.message);
         throw new Error(error.response?.data?.message || "Failed to fetch chats.");
     }
 };
@@ -148,3 +150,44 @@ export const getChatById = async (chatId) => {
     }
 };
 
+export const getAllChatsWithUnreadCount = async () => {
+    try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get("/chats/all", {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        return response.data.map(chat => ({
+            ...chat,
+            unreadCount: chat.messages.filter(msg => !msg.isRead && msg.sender !== localStorage.getItem("userId")).length
+        }));
+    } catch (error) {
+        console.error("Error fetching chats:", error);
+        return [];
+    }
+};
+
+
+// ✅ Mark messages as read
+export const markMessagesAsRead = async (chatId) => {
+    const token = localStorage.getItem("token");
+    await axios.put(`/chats/${chatId}/read`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+};
+
+  export const getUnreadMessages = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const res = await axios.get("/chats/unread", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return res.data; // should return chatId + unread count
+    } catch (error) {
+      console.error("Error fetching unread messages:", error);
+      throw error;
+    }
+  };
+  

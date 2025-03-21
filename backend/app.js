@@ -26,11 +26,14 @@ app.use(express.json());
 
 // Enable CORS
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+
+
 app.use(cors({
-    origin: FRONTEND_URL,
-    methods: ["GET", "POST"],
-    credentials: true // ✅ Allow credentials for authentication
+    origin: "http://localhost:5173", // ✅ Your frontend
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // ✅ Allow PUT
+    credentials: true,
 }));
+
 
 // WebSocket setup
 const server = http.createServer(app);
