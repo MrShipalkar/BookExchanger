@@ -1,58 +1,111 @@
 const Order = require("../models/Order");
 
-// ✅ Get all orders for a seller
+const createOrder = async (req, res) => {
+    try {
+        const {
+            chatId,
+            buyerId,
+            sellerId,
+            bookId,
+            deliveryAddress,
+            phoneNumber,
+            price,
+            orderType,
+            rentDays,
+            rentStartDate,
+            rentEndDate
+        } = req.body;
+
+        console.log("Incoming Order Data:", {
+            rentStartDate,
+            rentEndDate,
+            rentDays
+        });
+
+        const order = new Order({
+            chat: chatId,
+            buyer: buyerId,
+            seller: sellerId,
+            book: bookId,
+            deliveryAddress,
+            phoneNumber,
+            price,
+            orderType,
+            rentDays,
+            rentStartDate,
+            rentEndDate
+        });
+
+        const savedOrder = await order.save();
+        console.log("Saved Order Data:", savedOrder);
+
+        // ✅ Ensure Socket.IO is attached to the app
+        const io = req.app.get("io");
+
+        if (!io) {
+            console.error("Socket.IO instance is not available.");
+            return res.status(500).json({ message: "Internal server error: Socket.IO not initialized" });
+        }
+
+        // ✅ Format Rent Dates Properly
+        const formattedRentStartDate = savedOrder.rentStartDate
+            ? new Date(savedOrder.rentStartDate).toLocaleDateString("en-IN")
+            : "N/A";
+
+        const formattedRentEndDate = savedOrder.rentEndDate
+            ? new Date(savedOrder.rentEndDate).toLocaleDateString("en-IN")
+            : "N/A";
+
+        console.log("Formatted Rent Start Date:", formattedRentStartDate);
+        console.log("Formatted Rent End Date:", formattedRentEndDate);
+
+        // ✅ Emit order confirmation message to the chat room with **proper line breaks**
+        io.to(chatId).emit("receive_message", {
+            chatId,
+            sender: "System",
+            senderModel: "System",
+            message: `✅ **Order Placed Successfully!**\n\n`
+                + `📚 **Book:** ${bookId}\n`
+                + `📖 **Type:** ${orderType === "rent" ? `📅 Rent (${rentDays} days)` : "🛍 Purchase"}\n`
+                + `🗓 **Rent Period:** ${orderType === "rent" ? `${formattedRentStartDate} to ${formattedRentEndDate}` : "N/A"}\n`
+                + `💰 **Price:** ₹${price}\n`
+                + `🚚 **Delivery Address:** ${deliveryAddress}\n`
+                + `📞 **Phone:** ${phoneNumber}`
+        });
+
+        res.status(201).json(savedOrder);
+    } catch (error) {
+        console.error("Error creating order:", error);
+        res.status(500).json({ message: "Failed to create order" });
+    }
+};
+
+
+
+
+
 const getOrdersBySeller = async (req, res) => {
     try {
-        const orders = await Order.find({ seller: req.user.id })
-            .populate("buyer", "name email")
-            .populate("books.book", "title price");
-
-        res.status(200).json(orders);
+        const sellerId = req.params.sellerId;
+        const orders = await Order.find({ seller: sellerId }).populate("book buyer chat");
+        res.json(orders);
     } catch (error) {
-        console.error("Error fetching orders:", error);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Error fetching orders" });
     }
 };
 
-// ✅ Update Order Status
-const updateOrderStatus = async (req, res) => {
+const getOrdersByBuyer = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { status } = req.body;
-
-        const order = await Order.findById(id);
-        if (!order) return res.status(404).json({ message: "Order not found" });
-
-        if (order.seller.toString() !== req.user.id) {
-            return res.status(403).json({ message: "Unauthorized" });
-        }
-
-        order.status = status;
-        await order.save();
-
-        res.status(200).json({ message: "Order status updated", order });
+        const buyerId = req.params.buyerId;
+        const orders = await Order.find({ buyer: buyerId }).populate("book seller chat");
+        res.json(orders);
     } catch (error) {
-        console.error("Error updating order:", error);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Error fetching orders" });
     }
 };
 
-//Buyer
-
-const getBuyerOrders = async (req, res) => {
-    try {
-        const buyerId = req.user.id; // Get Buyer ID from authenticated user
-        const orders = await Order.find({ buyer: buyerId }).populate("book", "title price images");
-
-        if (!orders.length) {
-            return res.status(404).json({ message: "No orders found." });
-        }
-
-        res.status(200).json(orders);
-    } catch (error) {
-        console.error("Error fetching buyer orders:", error);
-        res.status(500).json({ message: "Server error. Please try again later." });
-    }
+module.exports = {
+    createOrder,
+    getOrdersBySeller,
+    getOrdersByBuyer
 };
-
-module.exports = { getOrdersBySeller, updateOrderStatus, getBuyerOrders};

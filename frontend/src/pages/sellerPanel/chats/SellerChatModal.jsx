@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { getChatById, sendMessage } from "../../../services/chatService";
 import { io } from "socket.io-client";
+import CreateOrderModal from "../../../components/sellerPanel/CreateOrder/CreateOrderModal";
 import "./SellerChatModal.css";
 
 const socket = io("http://localhost:5000");
@@ -9,18 +10,16 @@ const SellerChatModal = ({ chatId, onClose }) => {
     const [chat, setChat] = useState(null);
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(true);
+    const [showOrderModal, setShowOrderModal] = useState(false);
     const userId = localStorage.getItem("userId");
     const messagesEndRef = useRef(null);
 
-    // ✅ Format timestamp properly
     const formatTime = (timestamp) => {
         if (!timestamp) return "Just now";
         const now = new Date();
         const msgTime = new Date(timestamp);
         const diff = Math.abs(now - msgTime) / 1000;
-
         if (diff < 60) return "Just now";
-
         return msgTime.toLocaleString("en-IN", {
             day: "2-digit",
             month: "2-digit",
@@ -85,7 +84,8 @@ const SellerChatModal = ({ chatId, onClose }) => {
                         return (
                             <div key={index} className={`seller-message-wrapper ${isSeller ? "seller-message" : "seller-buyer-message"}`}>
                                 <div className="seller-message-content">
-                                    <p>{msg.message}</p>
+                                <p dangerouslySetInnerHTML={{ __html: msg.message.replace(/\n/g, "<br>") }}></p>
+
                                     <span className="seller-timestamp">{formatTime(msg.timestamp)}</span>
                                 </div>
                             </div>
@@ -103,7 +103,25 @@ const SellerChatModal = ({ chatId, onClose }) => {
                     />
                     <button onClick={handleSendMessage} disabled={!message.trim()}>Send</button>
                 </div>
+
+                <div className="seller-order-btn-container">
+                    <button className="create-order-btn" onClick={() => setShowOrderModal(true)}>
+                        Create Order
+                    </button>
+                </div>
             </div>
+
+            {/* ✅ Move `CreateOrderModal` outside `.seller-chat-window` to ensure it shows as a true modal */}
+            {showOrderModal && (
+                <CreateOrderModal
+                    chat={chat}
+                    onClose={() => setShowOrderModal(false)}
+                    onOrderCreated={() => {
+                        setShowOrderModal(false);
+                        // optionally show toast / update UI
+                    }}
+                />
+            )}
         </div>
     );
 };

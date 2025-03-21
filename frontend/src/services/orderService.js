@@ -1,5 +1,20 @@
 import api from "./apiConfig";
 
+
+// 📌 Place a New Order
+export const placeOrder = async (orderData) => {
+    try {
+        const token = localStorage.getItem("token");
+        const response = await api.post("/orders/create", orderData, {
+            headers: { "auth-token": token },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error placing order:", error);
+        throw new Error(error.response?.data?.message || "Failed to place order.");
+    }
+};
+
 // 📌 Get Orders for the Seller (Fix API Path)
 export const getSellerOrders = async () => {
     try {

@@ -43,6 +43,10 @@ const io = new Server(server, {
         methods: ["GET", "POST"]
     }
 });
+
+// Attach io instance to the app (✅ Important for emitting messages)
+app.set("io", io);
+
 app.use((req, res, next) => {
     req.io = io;
     next();

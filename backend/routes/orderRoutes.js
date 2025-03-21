@@ -1,19 +1,14 @@
 const express = require("express");
-const { verifyToken } = require("../middlewares/authMiddleware");
-const {
-    getOrdersBySeller,
-    updateOrderStatus,
-    getBuyerOrders
-} = require("../controllers/orderController");
-
 const router = express.Router();
+const { createOrder, getOrdersBySeller, getOrdersByBuyer } = require("../controllers/orderController");
 
-// ✅ Get orders for seller
-router.get("/seller/orders", verifyToken, getOrdersBySeller);
+// POST: Create order
+router.post("/create", createOrder);
 
-// ✅ Update order status
-router.put("/update-order/:id", verifyToken, updateOrderStatus);
+// GET: Get orders by seller
+router.get("/seller/:sellerId", getOrdersBySeller);
 
-//  ✅ Get orders for Buyer
-router.get("/buyer/orders", verifyToken, getBuyerOrders);
+// GET: Get orders by buyer
+router.get("/buyer/:buyerId", getOrdersByBuyer);
+
 module.exports = router;
