@@ -60,3 +60,12 @@ You can use Recharts or Chart.js for UI.
 
 🔥 Next Steps
 1️⃣ Create Seller Dashboard UI 2️⃣ Integrate Charts (Sales, Orders, Listings) 3️⃣ Build Manage Listings Page 4️⃣ Implement Orders Management 5️⃣ Add Profile & Settings Page
+
+
+
+
+
+🔥🔥🔥to build and deploy backend
+
+build cmd: pip install -r requirements.txt && npm install
+
