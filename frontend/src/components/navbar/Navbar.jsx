@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"; // Import useNavigate
 import "./Navbar.css";
 import BuyerAuthModal from "../BuyerAuthModal/BuyerAuthModal"; // Import Buyer modal
 import SellerAuthModal from "../SellerAuthModal/SellerAuthModal"; // Import Seller modal
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false); // State to toggle the dropdown menu
@@ -53,7 +54,7 @@ const Navbar = () => {
                 {/* Navigation Links */}
                 <ul className={`navbar-links ${isMenuOpen ? "active" : ""}`}>
                     <li><a onClick={navigateToHome} style={{ cursor: "pointer" }}>Home</a></li>
-                    <li><a href="/books">Books</a></li>
+                    <li><Link to="/books">Books</Link></li>
                     <li><a href="/about">About Us</a></li>
                     <li>
                         <button className="btn btn-signup" onClick={openBuyerModal}>Buy Books</button>

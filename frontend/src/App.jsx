@@ -26,7 +26,7 @@ const App = () => {
             <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<Homepage />} />
-                <Route path="/books" element={<Books />} />
+                <Route path="/books" element={<BuyerDashboard />} />
                 <Route path="/about" element={<AboutUs />} />
 
                 {/* ✅ Fix: Update Buyer Routes to use "/buyer/*" */}
