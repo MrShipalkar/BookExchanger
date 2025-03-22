@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "./BuyerNavbar.css";
-import LogoutModal from "../LogoutModal/LogoutModal"; // ✅ Import Logout Modal
+import LogoutModal from "../logoutModal/LogoutModal"; // ✅ Import Logout Modal
 
 const BuyerNavbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
