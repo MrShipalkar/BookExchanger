@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { getChatById, sendMessage } from "../../../services/chatService";
 import { io } from "socket.io-client";
 import CreateOrderModal from "../../../components/sellerPanel/CreateOrder/CreateOrderModal";
+import { BASE_URL } from "../../../services/apiConfig"; // ✅ Import the base URL
 import "./SellerChatModal.css";
 
-const socket = io("http://localhost:5000");
+const socket = io(BASE_URL); // ✅ Use shared base URL here
 
 const SellerChatModal = ({ chatId, onClose }) => {
     const [chat, setChat] = useState(null);

@@ -12,11 +12,18 @@ const Orders = () => {
     const fetchOrders = async () => {
         try {
             const response = await getSellerOrders();
-            setOrders(response);
+    
+            // Sort orders by createdAt in descending order (newest first)
+            const sortedOrders = response.sort(
+                (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+            );
+    
+            setOrders(sortedOrders);
         } catch (error) {
             console.error("Error fetching orders:", error);
         }
     };
+    
 
     const handleStatusChange = async (orderId, newStatus) => {
         try {

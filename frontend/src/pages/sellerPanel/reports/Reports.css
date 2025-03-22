@@ -87,6 +87,7 @@ html, body {
 
 /* 📌 Best-Sellers Title */
 .best-sellers h3 {
+    text-align: center;
     font-size: 1.4rem;
     color: #2C3E50;
     margin-bottom: 1rem;

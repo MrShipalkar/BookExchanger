@@ -14,7 +14,11 @@ const MyOrders = () => {
             try {
                 const response = await getBuyerOrders();
                 if (response && Array.isArray(response)) {
-                    setOrders(response);
+                    // Sort by most recent first
+                    const sortedOrders = response.sort(
+                        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+                    );
+                    setOrders(sortedOrders);
                 } else {
                     setOrders([]);
                 }
@@ -27,6 +31,7 @@ const MyOrders = () => {
         };
         fetchOrders();
     }, []);
+    
 
     return (
         <div className="my-orders">

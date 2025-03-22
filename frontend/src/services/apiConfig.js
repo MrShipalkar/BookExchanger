@@ -1,13 +1,17 @@
 import axios from "axios";
 
+
+
+// services/apiConfig.js
+const BASE_URL = "http://localhost:5000";
+
 const instance = axios.create({
-    baseURL: "http://localhost:5000/api", // Replace with your backend's base URL
+    baseURL: `${BASE_URL}/api`,
     headers: {
         "Content-Type": "application/json",
     },
 });
 
-// Add interceptors if needed (e.g., for authentication tokens)
 instance.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -17,3 +21,4 @@ instance.interceptors.request.use((config) => {
 });
 
 export default instance;
+export { BASE_URL }; // <-- Export the base URL

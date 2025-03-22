@@ -6,6 +6,7 @@ import "./BuyerDashboard.css";
 const BuyerDashboard = () => {
     const [books, setBooks] = useState([]);
     const [search, setSearch] = useState("");
+    const [selectedBranch, setSelectedBranch] = useState("all"); // ⬅️ New state for branch filter
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -25,27 +26,32 @@ const BuyerDashboard = () => {
         navigate(`/buyer/book/${bookId}`);
     };
 
-    // Truncate long text
     const truncateText = (text, maxLength) => {
         return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
     };
 
-    // **Fix: Apply Search to All Categories**
-    const filteredBooks = books.filter(
-        (book) =>
-            book.title.toLowerCase().includes(search.toLowerCase()) ||
-            book.author.toLowerCase().includes(search.toLowerCase())
-    );
+    // ✅ Extract branches for dropdown
+    const uniqueBranches = [
+        ...new Set(
+            books
+                .map(book => book.branch)
+                .filter(branch => branch && branch.trim() !== "")
+        ),
+    ];
+    
 
-    // Categorizing books **after filtering**
+
+    // ✅ Apply search + branch filtering
+    const filteredBooks = books.filter((book) => {
+        const matchesSearch = book.title.toLowerCase().includes(search.toLowerCase()) || book.author.toLowerCase().includes(search.toLowerCase());
+        const matchesBranch = selectedBranch === "all" || book.branch === selectedBranch;
+        return matchesSearch && matchesBranch;
+    });
+
     const recommendedBooks = filteredBooks.filter(book => book.recommendations?.length > 0);
     const bestsellers = filteredBooks.filter(book => book.ratings?.average >= 4);
-
-    // Group books by branch **after filtering**
     const booksByBranch = filteredBooks.reduce((acc, book) => {
-        if (!acc[book.branch]) {
-            acc[book.branch] = [];
-        }
+        if (!acc[book.branch]) acc[book.branch] = [];
         acc[book.branch].push(book);
         return acc;
     }, {});
@@ -54,21 +60,31 @@ const BuyerDashboard = () => {
         <div className="buyer-dashboard">
             <h2>Explore Books</h2>
 
-            {/* ✅ Search Bar */}
-            <input
-                type="text"
-                placeholder="Search by title or author..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="search-bar"
-            />
+            {/* 🔍 Search + Filter Bar */}
+            <div className="search-filter-row">
+                <input
+                    type="text"
+                    placeholder="Search by title or author..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="search-bar"
+                />
+                <select
+                    className="branch-filter"
+                    value={selectedBranch}
+                    onChange={(e) => setSelectedBranch(e.target.value)}
+                >
+                    <option value="all">All Branches</option>
+                    {uniqueBranches.map((branch, index) => (
+                        <option key={index} value={branch}>{branch}</option>
+                    ))}
+                </select>
+            </div>
 
-            {/* ✅ Show "No Books Found" if search returns nothing */}
             {filteredBooks.length === 0 ? (
                 <p>No books found.</p>
             ) : (
                 <>
-                    {/* ✅ Recommended Books */}
                     {recommendedBooks.length > 0 && (
                         <div>
                             <h3>Recommended Books</h3>
@@ -86,7 +102,6 @@ const BuyerDashboard = () => {
                         </div>
                     )}
 
-                    {/* ✅ Bestsellers */}
                     {bestsellers.length > 0 && (
                         <div>
                             <h3>Bestsellers</h3>
@@ -104,7 +119,6 @@ const BuyerDashboard = () => {
                         </div>
                     )}
 
-                    {/* ✅ Books Categorized by Branch */}
                     {Object.keys(booksByBranch).map((branch) => (
                         booksByBranch[branch].length > 0 && (
                             <div key={branch}>

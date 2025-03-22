@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { getBookById, getSimilarBooks } from "../../../services/bookService";
 import { startChatWithSeller } from "../../../services/chatService";
 import BuyerChatWindow from "../chats/BuyerChatModal";
+import BuyerAuthModal from "../../../components/BuyerAuthModal/BuyerAuthModal";
 import "./ProductPage.css";
 
 const ProductPage = () => {
@@ -13,6 +14,9 @@ const ProductPage = () => {
     const [loading, setLoading] = useState(true);
     const [chat, setChat] = useState(null);
     const [showChatModal, setShowChatModal] = useState(false);
+    const [showLoginModal, setShowLoginModal] = useState(false);
+
+    const isLoggedIn = !!localStorage.getItem("token"); // Check login
 
     useEffect(() => {
         if (!bookId) {
@@ -40,6 +44,11 @@ const ProductPage = () => {
     }, [bookId]);
 
     const handleStartChat = async () => {
+        if (!isLoggedIn) {
+            setShowLoginModal(true);
+            return;
+        }
+
         if (!book || !book._id || !book.seller) {
             console.error("Book or Seller data missing.");
             return;
@@ -116,6 +125,7 @@ const ProductPage = () => {
                 </div>
             </div>
 
+            {/* Buyer Chat Modal */}
             {showChatModal && chat && (
                 <div className="buyer-chat-modal">
                     <div className="buyer-chat-modal-overlay" onClick={() => setShowChatModal(false)}></div>
@@ -125,6 +135,9 @@ const ProductPage = () => {
                     </div>
                 </div>
             )}
+
+            {/* Buyer Auth Modal */}
+            <BuyerAuthModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
         </div>
     );
 };
