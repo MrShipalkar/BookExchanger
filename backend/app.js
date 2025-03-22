@@ -25,30 +25,37 @@ const app = express();
 app.use(express.json());
 
 // Enable CORS
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+
 
 const allowedOrigins = [
     "http://localhost:5173",
-    "https://bookexchanger-west.onrender.com/" // ✅ Add deployed frontend URL
+    "https://bookexchanger-west.onrender.com"
   ];
   
-app.use(cors({
-    origin: allowedOrigins, // ✅ Your frontendh
-    
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // ✅ Allow PUT
+  app.use(cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
-}));
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  }));
+  
 
 
 // WebSocket setup
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: {
-    origin: allowedOrigins, // ✅ Use same array here
-    methods: ["GET", "POST"],
-    credentials: true,
-  }
-});
+    cors: {
+      origin: allowedOrigins,
+      methods: ["GET", "POST"],
+      credentials: true,
+    },
+  });
+  
 
 // Attach io instance to the app (✅ Important for emitting messages)
 app.set("io", io);
