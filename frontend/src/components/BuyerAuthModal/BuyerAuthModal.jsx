@@ -61,7 +61,14 @@ const BuyerAuthModal = ({ isOpen, onClose }) => {
             }
     
         } catch (error) {
-            setError(error.response?.data?.message || "Something went wrong");
+            console.error("Login Error:", error);
+
+            const backendMessage =
+                error.response?.data?.message ||
+                error.message || // fallback to default axios error
+                "Something went wrong";
+        
+            setError(backendMessage);
         }
     };
     
@@ -79,6 +86,7 @@ const BuyerAuthModal = ({ isOpen, onClose }) => {
                 <button className="close-button" onClick={handleModalClose}>✖</button>
                 <h2>{isLogin ? "Login as Buyer" : "Signup as Buyer"}</h2>
                 <form onSubmit={handleSubmit}>
+
                     {!isLogin && (
                         <>
                             <div className="form-group">

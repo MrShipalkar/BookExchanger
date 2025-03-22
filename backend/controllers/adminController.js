@@ -3,6 +3,9 @@ const Buyer = require('../models/Buyer');
 const Seller = require('../models/Seller');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const Book = require('../models/Book'); // ✅ singular
+const Order = require('../models/Order');
+
 
 // Admin login
 const adminLogin = async (req, res) => {
@@ -75,13 +78,13 @@ const getAllUsers = async (req, res) => {
 // Fetch buyers
 const getAllBuyers = async (req, res) => {
     try {
-        const buyers = await Buyer.find().select('-password'); // Exclude passwords
-        res.json(buyers);
+        const buyers = await Buyer.find().select("name email branch status"); // ✅ include status
+        res.status(200).json(buyers);
     } catch (error) {
-        console.error("Error fetching buyers:", error);
-        res.status(500).json({ message: 'Server error', error });
+        res.status(500).json({ message: "Failed to get buyers" });
     }
 };
+
 
 // Fetch sellers
 const getAllSellers = async (req, res) => {
@@ -94,6 +97,87 @@ const getAllSellers = async (req, res) => {
     }
 };
 
+// Get all books
+const getAllBooks = async (req, res) => {
+    try {
+        const books = await Book.find().populate('seller', 'name email');
+        res.status(200).json(books);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to fetch books', error });
+    }
+};
 
-module.exports = { getAllBuyers, getAllSellers, getAllUsers, adminLogin, getAdminProfile, updateAdminPassword };
+// Delete a book
+const deleteBook = async (req, res) => {
+    try {
+        const { bookId } = req.params;
+        await Book.findByIdAndDelete(bookId);
+        res.status(200).json({ message: 'Book deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to delete book', error });
+    }
+};
+
+//order management
+// Get all orders
+const getAllOrders = async (req, res) => {
+    try {
+        const orders = await Order.find()
+            .populate('buyer', 'name email')
+            .populate('seller', 'name email')
+            .populate('book', 'title price');
+
+        res.status(200).json(orders);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to fetch orders', error });
+    }
+};
+
+//Analytics/Reports
+// Get counts for dashboard
+const getDashboardStats = async (req, res) => {
+    try {
+        // Optional: log user ID to verify token worked
+        console.log("Admin ID from token:", req.user?.id);
+
+        const buyerCount = await Buyer.countDocuments();
+        const sellerCount = await Seller.countDocuments();
+        const bookCount = await Book.countDocuments();
+        const orderCount = await Order.countDocuments();
+
+        res.json({ buyerCount, sellerCount, bookCount, orderCount });
+    } catch (error) {
+        console.error("Error in getDashboardStats:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+const toggleBuyerStatus = async (req, res) => {
+    try {
+        const buyer = await Buyer.findById(req.params.id);
+        if (!buyer) return res.status(404).json({ message: 'Buyer not found' });
+
+        buyer.status = buyer.status === 'blocked' ? 'active' : 'blocked';
+        await buyer.save();
+        res.status(200).json({ message: `Buyer ${buyer.status}` });
+    } catch (error) {
+        res.status(500).json({ message: 'Error toggling status', error });
+    }
+};
+
+const toggleSellerStatus = async (req, res) => {
+    try {
+        const seller = await Seller.findById(req.params.id);
+        if (!seller) return res.status(404).json({ message: 'Seller not found' });
+
+        seller.status = seller.status === 'blocked' ? 'active' : 'blocked';
+        await seller.save();
+        res.status(200).json({ message: `Seller ${seller.status}` });
+    } catch (error) {
+        res.status(500).json({ message: 'Error toggling status', error });
+    }
+};
+
+
+module.exports = { getAllBuyers, getAllSellers, getAllUsers, adminLogin, getAdminProfile, updateAdminPassword , getAllBooks, deleteBook, getAllOrders, toggleSellerStatus, toggleBuyerStatus, getDashboardStats };
 

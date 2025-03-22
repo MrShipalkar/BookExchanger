@@ -15,12 +15,16 @@
     color: black;
     width: 40vw;
     max-width: 500px;
+    max-height: 90vh; /* ✅ Limit height */
+    overflow-y: auto;  /* ✅ Enable scroll when content overflows */
     background: white;
     border-radius: 10px;
     padding: 20px;
     position: relative;
     box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
 }
+
+
 
 .order-modal .close-btn {
     position: absolute;
@@ -47,6 +51,8 @@
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 14px;
+    background-color:#f0f0f0;
+    color: black;
 }
 
 .order-modal button {
@@ -64,9 +70,24 @@
 .order-modal button:hover {
     background: #0056b3;
 }
+/* Optional: Custom Scrollbar Styling */
+.order-modal::-webkit-scrollbar {
+    width: 8px;
+}
+
+.order-modal::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+.order-modal::-webkit-scrollbar-track {
+    background: #f0f0f0;
+}
+
 
 @media screen and (max-width: 768px) {
     .order-modal {
         width: 90vw;
+        z-index: 1000;
     }
 }

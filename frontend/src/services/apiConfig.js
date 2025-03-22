@@ -17,9 +17,13 @@ const instance = axios.create({
 });
 
 instance.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
+    const adminToken = localStorage.getItem("adminToken");
+    const userToken = localStorage.getItem("token");
+  
+    const token = adminToken || userToken; // ✅ Define token here
+  
     if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
 });

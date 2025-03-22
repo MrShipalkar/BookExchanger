@@ -5,6 +5,11 @@ const buyerSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     address: { type: String }, // Optional field
+    status: {
+        type: String,
+        enum: ['active', 'blocked'],
+        default: 'active'
+    }
 }, {
     timestamps: true, // Automatically adds createdAt and updatedAt
 });

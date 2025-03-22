@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams,Link } from "react-router-dom";
 import { getBookById, getSimilarBooks } from "../../../services/bookService";
 import { startChatWithSeller } from "../../../services/chatService";
 import BuyerChatWindow from "../chats/BuyerChatModal";
@@ -111,17 +111,23 @@ const ProductPage = () => {
             <div className="similar-books">
                 <h3>Similar Books</h3>
                 <div className="scroll-container">
-                    {similarBooks.length > 0 ? (
-                        similarBooks.map((sBook) => (
-                            <div key={sBook._id} className="similar-card">
-                                <img src={sBook.images?.[0] || "/default-book.jpg"} alt={sBook.title} />
-                                <p>{sBook.title.length > 20 ? sBook.title.substring(0, 20) + "..." : sBook.title}</p>
-                                <p><strong>₹{sBook.original_price}</strong></p>
-                            </div>
-                        ))
-                    ) : (
-                        <p>No similar books found.</p>
-                    )}
+                {similarBooks.length > 0 ? (
+    similarBooks.map((sBook) => (
+        <Link
+            to={`/buyer/book/${sBook._id}`}
+            key={sBook._id}
+            className="similar-card-link"
+        >
+            <div className="similar-card">
+                <img src={sBook.images?.[0] || "/default-book.jpg"} alt={sBook.title} />
+                <p>{sBook.title.length > 20 ? sBook.title.substring(0, 20) + "..." : sBook.title}</p>
+                <p><strong>₹{sBook.original_price}</strong></p>
+            </div>
+        </Link>
+    ))
+) : (
+    <p>No similar books found.</p>
+)}
                 </div>
             </div>
 

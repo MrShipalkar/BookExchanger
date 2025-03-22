@@ -12,6 +12,11 @@ const sellerSchema = new mongoose.Schema({
     }, // New field to identify the type of seller
     shopName: { type: String }, // Optional, only for shop owners
     shopAddress: { type: String }, // Optional, only for shop owners
+    status: {
+        type: String,
+        enum: ['active', 'blocked'],
+        default: 'active'
+    }
 }, {
     timestamps: true, // Automatically adds createdAt and updatedAt
 });

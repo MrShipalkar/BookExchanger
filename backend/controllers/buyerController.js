@@ -30,23 +30,28 @@ const buyerLogin = async (req, res) => {
         const buyer = await Buyer.findOne({ email });
         if (!buyer) return res.status(404).json({ message: 'Buyer not found' });
 
+        // ⛔️ Check if buyer is blocked
+        if (buyer.status === 'blocked') {
+            return res.status(403).json({ message: 'Your account is blocked. Please contact support.' });
+        }
+
         const isPasswordValid = await bcrypt.compare(password, buyer.password);
         if (!isPasswordValid) return res.status(401).json({ message: 'Invalid credentials' });
 
         const token = jwt.sign({ id: buyer._id, role: 'buyer' }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
-        // ✅ Return buyer details along with token
         res.status(200).json({
             token,
-            userId: buyer._id, // ✅ Send buyer ID
-            role: "buyer", // ✅ Send user role
-            name: buyer.name, // ✅ Send buyer name
+            userId: buyer._id,
+            role: "buyer",
+            name: buyer.name,
             message: "Login successful",
         });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });
     }
 };
+
 
 
 // ✅ Fetch Buyer Profile

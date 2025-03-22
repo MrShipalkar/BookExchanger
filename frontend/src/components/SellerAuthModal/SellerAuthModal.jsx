@@ -64,7 +64,14 @@ const SellerAuthModal = ({ isOpen, onClose }) => {
             navigate("/seller/dashboard");
     
         } catch (error) {
-            setError(error.response?.data?.message || "Something went wrong");
+            console.error("Login Error:", error);
+
+            const backendMessage =
+                error.response?.data?.message ||
+                error.message || // fallback to default axios error
+                "Something went wrong";
+        
+            setError(backendMessage);
         }
     };
     

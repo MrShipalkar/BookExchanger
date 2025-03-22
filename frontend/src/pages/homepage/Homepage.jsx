@@ -16,7 +16,7 @@ const Home = () => {
     const fetchBooks = async () => {
         try {
             const response = await getAllBooks();
-            setBooks(response.slice(0, 6)); // Limit to 6 books
+            setBooks(response.slice(0, 5)); // Limit to 6 books
         } catch (error) {
             console.error("Error fetching books:", error);
         }

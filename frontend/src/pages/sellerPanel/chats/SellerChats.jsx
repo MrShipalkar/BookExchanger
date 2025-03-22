@@ -72,7 +72,7 @@ const SellerChats = () => {
                 <div className="chat-list">
                     {chats.map((chat) => (
                         <div key={chat._id} className="chat-item" onClick={() => handleChatClick(chat._id)}>
-                            <img src={chat.book.images?.[0] || "/default-book.jpg"} alt="Book" className="book-image" />
+                            <img src={chat.book?.images?.[0] || "/default-book.jpg"} alt="Book" className="book-image" />
                             <div className="chat-details">
                                 <h3>{chat.book?.title || "Unknown Book"}</h3>
                                 <p>👤 Buyer: {chat.buyer?.name || "Unknown"}</p>
