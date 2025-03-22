@@ -3,10 +3,10 @@ import axios from "axios";
 
 
 // services/apiConfig.js
-const BASE_URL = "https://bookexchanger-backend.onrender.com";
+// const BASE_URL = "https://bookexchanger-backend.onrender.com";
 
 // use this link for local machine run
-// const BASE_URL = "http://localhost:5000";
+const BASE_URL = "http://localhost:5000";
 
 
 const instance = axios.create({
