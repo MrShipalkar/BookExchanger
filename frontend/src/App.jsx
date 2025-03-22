@@ -26,7 +26,7 @@ import SellerChats from "./pages/sellerPanel/chats/SellerChats";
 // Admin Panel
 import AdminLogin from "./pages/adminPanel/adminLogin/AdminLogin";
 import AdminDashboard from "./pages/adminPanel/admindashboard/AdminDashboard";
-import AdminSidebar from "./components/adminPanel/adminSidebar/adminSidebar";
+import AdminSidebar from "./components/adminPanel/adminSidebar/AdminSidebar";
 import AdminProfile from "./pages/adminPanel/adminProfile/AdminProfile";
 import ManageBuyers from "./pages/adminPanel/manageBuyers/ManageBuyers";
 import ManageSellers from "./pages/adminPanel/manageSellers/ManageSellers";
